@@ -1,6 +1,6 @@
 from fastapi import APIRouter,status,Depends
 from fastapi.exceptions import HTTPException
-from database import Session,engine
+from database import session,engine
 from schemas import SignUpModel,LoginModel
 from models import User
 from fastapi.exceptions import HTTPException
@@ -8,13 +8,11 @@ from werkzeug.security import generate_password_hash , check_password_hash
 from fastapi_jwt_auth import AuthJWT
 from fastapi.encoders import jsonable_encoder
 
-
 auth_router=APIRouter(
     prefix='/auth',
     tags=['auth']
 
 )
-
 
 session=Session(bind=engine)
 
@@ -35,7 +33,6 @@ async def hello(Authorize:AuthJWT=Depends()):
 
     return {"message":"Hello World"}
 
-
 @auth_router.post('/signup',
     status_code=status.HTTP_201_CREATED
 )
@@ -49,12 +46,8 @@ async def signup(user:SignUpModel):
                 password:str
                 is_staff:bool
                 is_active:bool
-
         ```
-    
     """
-
-
     db_email=session.query(User).filter(User.email==user.email).first()
 
     if db_email is not None:
@@ -78,15 +71,10 @@ async def signup(user:SignUpModel):
     )
 
     session.add(new_user)
-
     session.commit()
-
     return new_user
 
-
-
 #login route
-
 @auth_router.post('/login',status_code=200)
 async def login(user:LoginModel,Authorize:AuthJWT=Depends()):
     """     
@@ -115,17 +103,13 @@ async def login(user:LoginModel,Authorize:AuthJWT=Depends()):
         detail="Invalid Username Or Password"
     )
 
-
-
 #refreshing tokens
-
 @auth_router.get('/refresh')
 async def refresh_token(Authorize:AuthJWT=Depends()):
     """
     ## Create a fresh token
     This creates a fresh token. It requires an refresh token.
     """
-
 
     try:
         Authorize.jwt_refresh_token_required()
@@ -137,7 +121,6 @@ async def refresh_token(Authorize:AuthJWT=Depends()):
 
     current_user=Authorize.get_jwt_subject()
 
-    
     access_token=Authorize.create_access_token(subject=current_user)
 
     return jsonable_encoder({"access":access_token})
