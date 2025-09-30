@@ -3,7 +3,7 @@ from fastapi.exceptions import HTTPException
 from fastapi_jwt_auth import AuthJWT
 from models import User,Order
 from schemas import OrderModel,OrderStatusModel
-from database import Session , engine
+from database import session , engine
 from fastapi.encoders import jsonable_encoder
 
 order_router=APIRouter(
@@ -11,7 +11,7 @@ order_router=APIRouter(
     tags=['orders']
 )
 
-session=Session(bind=engine)
+session=session(bind=engine)
 
 @order_router.get('/')
 async def hello(Authorize:AuthJWT=Depends()):

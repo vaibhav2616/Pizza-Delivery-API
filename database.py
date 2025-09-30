@@ -4,4 +4,4 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 engine=create_engine('postgresql://postgres:Vaibhav%40123i@localhost/pizza_delivery'
     ,echo=True)
 Base =declarative_base()
-session=sessionmaker()
+session=sessionmaker(bind=engine)

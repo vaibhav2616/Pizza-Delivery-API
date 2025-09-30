@@ -14,7 +14,7 @@ auth_router=APIRouter(
 
 )
 
-session=Session(bind=engine)
+session=session(bind=engine)
 
 @auth_router.get('/')
 async def hello(Authorize:AuthJWT=Depends()):
