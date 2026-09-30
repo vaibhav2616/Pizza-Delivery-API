@@ -1,0 +1,30 @@
+# Python Virtual Environments
+myenv/
+venv/
+.venv/
+env/
+ENV/
+
+# Python Bytecode and Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Databases
+*.db
+*.sqlite3
+*.db-wal
+*.db-shm
+
+# Operating System & IDE Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary & Log files
+*.log
+git_progressive_push.ps1
