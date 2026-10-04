@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SliceCraft — Artisanal Wood-Fired Pizza & Kitchen Dispatch</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍕</text></svg>">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       Header & Navigation Bar
+       ========================================================================== -->
+  <header class="app-header">
+    <div class="header-inner">
+      <a href="#" class="brand-logo" onclick="app.showSection('menu'); return false;">
+        <div class="brand-icon-box">🍕</div>
+        <div>
+          <div class="brand-title">SliceCraft</div>
+          <div class="brand-subtitle">Wood-Fired Artisanal Pizzeria</div>
+        </div>
+      </a>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" id="nav-menu" onclick="app.showSection('menu')">
+          <span>🍕</span> Artisanal Menu
+        </button>
+        <button class="nav-btn" id="nav-tracker" onclick="app.showSection('tracker')">
+          <span>🛵</span> Live Tracker
+        </button>
+        <button class="nav-btn" id="nav-custom" onclick="app.openCustomizerModal()">
+          <span>✨</span> Pizza Crafter
+        </button>
+        <button class="nav-btn" id="nav-admin" onclick="app.showSection('admin')">
+          <span>👨‍🍳</span> Kitchen Portal
+        </button>
+      </nav>
+
+      <div class="header-actions">
+        <!-- User Status Badge / Auth Button -->
+        <div id="auth-header-container">
+          <button class="btn-secondary" onclick="app.openAuthModal('login')">Sign In</button>
+        </div>
+
+        <!-- Cart Trigger Button -->
+        <button class="cart-btn-indicator" onclick="app.toggleCartDrawer()">
+          <span>🛒</span>
+          <span class="cart-badge" id="header-cart-count">0</span>
+          <span id="header-cart-total">$0.00</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       Hero Section
+       ========================================================================== -->
+  <section class="hero-section" id="hero-banner">
+    <div class="hero-content">
+      <div class="hero-pill">
+        <span>🔥</span> 500°C Stone-Deck Wood-Fired Perfection
+      </div>
+      <h1 class="hero-title">
+        Crispy Crust. <br>
+        Molten Cheese. <br>
+        <span class="text-gradient">Pure Italian Soul.</span>
+      </h1>
+      <p class="hero-description">
+        Crafted with 72-hour cold-fermented dough, San Marzano D.O.P. plum marinara, and fresh imported Buffalo mozzarella. Hot to your doorstep in 25 minutes.
+      </p>
+
+      <div class="hero-cta-group">
+        <button class="btn-primary" onclick="app.scrollToMenu()">
+          <span>🍕</span> Explore Menu
+        </button>
+        <button class="btn-secondary" onclick="app.openCustomizerModal()">
+          <span>🛠️</span> Craft Custom Pizza
+        </button>
+        <button class="btn-secondary" onclick="app.showSection('tracker')">
+          <span>🛵</span> Track My Order
+        </button>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">25m</span>
+          <span class="stat-label">Average Delivery Time</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">4.9 ★</span>
+          <span class="stat-label">12,500+ Foodies</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">72h</span>
+          <span class="stat-label">Dough Fermentation</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Animated Pizza Visualizer Stage -->
+    <div class="hero-stage">
+      <div class="oven-glow-halo"></div>
+      
+      <div class="pizza-visualizer-container" onclick="app.openCustomizerModal()" title="Click to Craft Your Own Pizza!">
+        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80" alt="Artisanal Pizza" class="pizza-main-art" id="hero-pizza-img">
+        
+        <!-- Animated Steam Particles -->
+        <div class="steam-particle steam-1"></div>
+        <div class="steam-particle steam-2"></div>
+        <div class="steam-particle steam-3"></div>
+
+        <!-- Floating Ingredient Badges -->
+        <div class="floating-topping-badge badge-top-left">
+          <span>🌿</span> Fresh Genovese Basil
+        </div>
+        <div class="floating-topping-badge badge-bottom-right">
+          <span>🍯</span> Hot-Honey Drizzle
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Persona Quick Switcher Bar (Instant Interview & Demo Testing)
+       ========================================================================== -->
+  <div class="persona-bar">
+    <div class="persona-bar-inner">
+      <div class="persona-title">
+        <span>⚡</span> <strong>Interactive Demo Persona:</strong>
+      </div>
+      <div class="persona-btns">
+        <button class="persona-pill-btn" onclick="app.quickLogin('johndoe', 'Password123!')">
+          <span>🍕</span> Login as Customer (johndoe)
+        </button>
+        <button class="persona-pill-btn" onclick="app.quickLogin('admin', 'Admin@123')">
+          <span>👨‍🍳</span> Login as Kitchen Staff (admin)
+        </button>
+        <button class="persona-pill-btn" onclick="app.logout()">
+          <span>🚪</span> Log Out (Guest Mode)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Main View: Artisanal Menu Section
+       ========================================================================== -->
+  <main class="section-container" id="menu-section">
+    <div class="section-header">
+      <div>
+        <h2 class="section-headline">Our Artisanal Creations</h2>
+        <p class="section-subtext">Hand-stretched to order, baked on stone at 900°F.</p>
+      </div>
+
+      <!-- Category Filter Pills & Search -->
+      <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <div class="menu-filter-bar" id="category-filter-bar">
+          <button class="filter-pill active" onclick="app.filterCategory('all')">All Pizzas</button>
+          <button class="filter-pill" onclick="app.filterCategory('Classic')">Classic</button>
+          <button class="filter-pill" onclick="app.filterCategory('Meat')">Meat Lovers</button>
+          <button class="filter-pill" onclick="app.filterCategory('Vegetarian')">Vegetarian</button>
+          <button class="filter-pill" onclick="app.filterCategory('Specialty')">Specialty</button>
+        </div>
+
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="menu-search-input" placeholder="Search flavor, ingredient..." oninput="app.handleSearch(this.value)">
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Menu Grid -->
+    <div class="pizza-grid" id="pizza-grid-container">
+      <!-- Injected via JavaScript -->
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       View: Live Order Tracker
+       ========================================================================== -->
+  <section class="section-container" id="tracker-section" style="display: none;">
+    <div class="section-header">
+      <div>
+        <h2 class="section-headline">Real-Time Kitchen & Courier Tracker</h2>
+        <p class="section-subtext">Follow your pizza from the rolling pin to your front door.</p>
+      </div>
+      <button class="btn-secondary" onclick="app.refreshOrderHistory()">
+        <span>🔄</span> Refresh Status
+      </button>
+    </div>
+
+    <!-- Active Selected Order Stepper -->
+    <div class="tracker-container" id="active-tracker-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span style="font-size: 0.85rem; color: var(--text-subtle); text-transform: uppercase; font-weight: 700;">Live Dispatch Monitor</span>
+          <h3 style="font-size: 1.45rem; font-weight: 800;" id="tracker-order-title">No Active Order Selected</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted);" id="tracker-order-meta">Select an order from history or place a new one.</p>
+        </div>
+        <div id="tracker-order-status-badge">
+          <span class="status-badge pending">Awaiting Selection</span>
+        </div>
+      </div>
+
+      <div class="tracker-steps" id="stepper-stages">
+        <div class="tracker-step" id="step-pending">
+          <div class="step-bubble">📋</div>
+          <span class="step-label">1. Order Received</span>
+          <span class="step-time">Dough Kneaded</span>
+        </div>
+        <div class="tracker-step" id="step-baking">
+          <div class="step-bubble">🔥</div>
+          <span class="step-label">2. Stone Oven Baking</span>
+          <span class="step-time">500°C Wood-Fired</span>
+        </div>
+        <div class="tracker-step" id="step-in-transit">
+          <div class="step-bubble">🛵</div>
+          <span class="step-label">3. Out For Delivery</span>
+          <span class="step-time">Courier Dispatched</span>
+        </div>
+        <div class="tracker-step" id="step-delivered">
+          <div class="step-bubble">🎉</div>
+          <span class="step-label">4. Delivered</span>
+          <span class="step-time">Enjoy Your Feast!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Order History List -->
+    <h3 style="font-size: 1.3rem; margin-bottom: 1rem; font-family: var(--font-display);">Order History & Receipts</h3>
+    <div id="user-orders-list" style="display: flex; flex-direction: column; gap: 1rem;">
+      <!-- Populated via JS -->
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       View: Kitchen Staff Admin Portal
+       ========================================================================== -->
+  <section class="section-container" id="admin-section" style="display: none;">
+    <div class="section-header">
+      <div>
+        <h2 class="section-headline">Kitchen Command & Dispatch Center</h2>
+        <p class="section-subtext">Manage active orders, update baking stages, and monitor revenue.</p>
+      </div>
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn-secondary" onclick="app.fetchStaffData()">
+          <span>🔄</span> Refresh Board
+        </button>
+      </div>
+    </div>
+
+    <!-- Live KPI Metrics -->
+    <div class="admin-stats-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon-box" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">💰</div>
+        <div>
+          <div class="kpi-val" id="kpi-revenue">$0.00</div>
+          <div class="kpi-title">Total Revenue</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon-box" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">📦</div>
+        <div>
+          <div class="kpi-val" id="kpi-total-orders">0</div>
+          <div class="kpi-title">Total Orders</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon-box" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">⏳</div>
+        <div>
+          <div class="kpi-val" id="kpi-pending">0</div>
+          <div class="kpi-title">In Queue (Pending)</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon-box" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">🛵</div>
+        <div>
+          <div class="kpi-val" id="kpi-transit">0</div>
+          <div class="kpi-title">In Transit</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon-box" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">✅</div>
+        <div>
+          <div class="kpi-val" id="kpi-delivered">0</div>
+          <div class="kpi-title">Delivered</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Dispatch Table -->
+    <div class="orders-table-wrapper">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Customer & Contact</th>
+            <th>Pizza & Size</th>
+            <th>Qty</th>
+            <th>Total Price</th>
+            <th>Current Status</th>
+            <th>Kitchen Actions</th>
+          </tr>
+        </thead>
+        <tbody id="admin-orders-tbody">
+          <!-- Populated via JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Shopping Cart & Checkout Side Drawer
+       ========================================================================== -->
+  <div class="drawer-backdrop" id="cart-drawer-backdrop" onclick="app.closeCartDrawer(event)">
+    <div class="cart-drawer" onclick="event.stopPropagation()">
+      <div class="cart-header">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="font-size: 1.3rem;">🛒</span>
+          <h3 style="font-family: var(--font-display); font-size: 1.25rem;">Your Cart</h3>
+        </div>
+        <button class="modal-close-btn" onclick="app.toggleCartDrawer()">✕</button>
+      </div>
+
+      <div class="cart-items-list" id="cart-items-container">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div class="cart-footer">
+        <div class="cart-summary-row">
+          <span>Subtotal</span>
+          <span id="cart-subtotal">$0.00</span>
+        </div>
+        <div class="cart-summary-row">
+          <span>Delivery Fee (Free over $25)</span>
+          <span id="cart-delivery-fee">$0.00</span>
+        </div>
+        <div class="cart-summary-row">
+          <span>Sales Tax (8%)</span>
+          <span id="cart-tax">$0.00</span>
+        </div>
+        <div class="cart-summary-row total-row">
+          <span>Grand Total</span>
+          <span id="cart-grand-total" style="color: var(--gold-500);">$0.00</span>
+        </div>
+
+        <button class="btn-primary" style="width: 100%; margin-top: 1.25rem; padding: 0.85rem;" onclick="app.openCheckoutModal()">
+          <span>💳</span> Proceed to Checkout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modal: Custom Pizza Crafter ("The Artisan Oven")
+       ========================================================================== -->
+  <div class="modal-backdrop" id="customizer-modal" onclick="app.closeModalOnBackdrop(event, 'customizer-modal')">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="customizer-pizza-title">Craft Your Artisanal Pizza</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Choose your stone-oven crust, size, and signature toppings.</p>
+        </div>
+        <button class="modal-close-btn" onclick="app.closeModal('customizer-modal')">✕</button>
+      </div>
+
+      <!-- Crust Selection -->
+      <div class="form-group">
+        <label class="form-label">1. Choose Crust Style</label>
+        <div class="crust-choice-grid">
+          <div class="crust-card selected" onclick="app.selectCrust(this, 'Hand-Tossed Classic', 0)">
+            <span class="crust-name">Hand-Tossed</span>
+            <span class="crust-desc">72h Fermented</span>
+          </div>
+          <div class="crust-card" onclick="app.selectCrust(this, 'Crispy Thin Crust', 0)">
+            <span class="crust-name">Thin Crust</span>
+            <span class="crust-desc">Extra Crispy</span>
+          </div>
+          <div class="crust-card" onclick="app.selectCrust(this, 'Cheese-Stuffed', 2.99)">
+            <span class="crust-name">Cheese-Stuffed</span>
+            <span class="crust-desc">Mozzarella (+2.99)</span>
+          </div>
+          <div class="crust-card" onclick="app.selectCrust(this, 'Cauliflower Gluten-Free', 3.49)">
+            <span class="crust-name">Gluten-Free</span>
+            <span class="crust-desc">Cauliflower (+3.49)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Size Selection -->
+      <div class="form-group">
+        <label class="form-label">2. Select Pizza Size</label>
+        <div class="card-size-selector" style="margin-bottom: 0;">
+          <button class="size-btn active" onclick="app.selectCustomSize('SMALL', this)">Small (10")</button>
+          <button class="size-btn" onclick="app.selectCustomSize('MEDIUM', this)">Medium (12")</button>
+          <button class="size-btn" onclick="app.selectCustomSize('LARGE', this)">Large (14")</button>
+          <button class="size-btn" onclick="app.selectCustomSize('EXTRA-LARGE', this)">XL (16")</button>
+        </div>
+      </div>
+
+      <!-- Custom Extra Toppings -->
+      <div class="form-group">
+        <label class="form-label">3. Signature Gourmet Add-ons</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer;">
+            <input type="checkbox" onchange="app.toggleTopping('Extra Fior di Latte Mozzarella', 1.99, this)"> Extra Mozzarella (+$1.99)
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer;">
+            <input type="checkbox" onchange="app.toggleTopping('Calabrian Hot Honey Drizzle', 1.49, this)"> Hot Honey (+$1.49)
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer;">
+            <input type="checkbox" onchange="app.toggleTopping('Aromatic Truffle Cream', 2.49, this)"> Truffle Glaze (+$2.49)
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer;">
+            <input type="checkbox" onchange="app.toggleTopping('Roasted Garlic Cloves', 1.29, this)"> Roasted Garlic (+$1.29)
+          </label>
+        </div>
+      </div>
+
+      <!-- Baking Instructions -->
+      <div class="form-group">
+        <label class="form-label">4. Special Baking Instructions</label>
+        <textarea class="form-textarea" id="custom-notes" placeholder="e.g. Well-done crust, slice in 8, extra oregano..."></textarea>
+      </div>
+
+      <!-- Price & Add Action -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem; border-top: 1px solid var(--border-glass); padding-top: 1.25rem;">
+        <div>
+          <span class="price-subtext">Estimated Price</span>
+          <div class="card-price" id="customizer-calculated-price">$13.99</div>
+        </div>
+        <button class="btn-primary" onclick="app.addCustomizedPizzaToCart()">
+          <span>🛒</span> Add to Order
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modal: Delivery Checkout
+       ========================================================================== -->
+  <div class="modal-backdrop" id="checkout-modal" onclick="app.closeModalOnBackdrop(event, 'checkout-modal')">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Complete Delivery Order</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('checkout-modal')">✕</button>
+      </div>
+
+      <form onsubmit="app.handleCheckoutSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Delivery Address</label>
+          <input type="text" class="form-input" id="checkout-address" required placeholder="e.g. 742 Evergreen Terrace, Apt 4B">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contact Phone (for Courier SMS updates)</label>
+          <input type="tel" class="form-input" id="checkout-phone" required placeholder="e.g. +1 (555) 019-2834">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Delivery Notes</label>
+          <input type="text" class="form-input" id="checkout-notes" placeholder="e.g. Ring front doorbell, leave at door">
+        </div>
+
+        <div style="background: rgba(255, 87, 34, 0.08); border: 1px solid rgba(255, 87, 34, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; font-weight: 700;">
+            <span>Order Total Due:</span>
+            <span id="checkout-modal-total" style="color: var(--gold-500); font-size: 1.2rem;">$0.00</span>
+          </div>
+          <span style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">⚡ Payment method: Cash on Delivery / Counter Tap</span>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.85rem;" id="checkout-submit-btn">
+          <span>🔥</span> Fire Up the Oven & Place Order
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modal: Authentication (Sign In & Sign Up)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="auth-modal" onclick="app.closeModalOnBackdrop(event, 'auth-modal')">
+    <div class="modal-dialog" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="auth-modal-title">Sign In to SliceCraft</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('auth-modal')">✕</button>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+        <button class="btn-secondary" id="auth-tab-login" style="flex: 1; font-weight: 700;" onclick="app.switchAuthTab('login')">Login</button>
+        <button class="btn-secondary" id="auth-tab-signup" style="flex: 1;" onclick="app.switchAuthTab('signup')">Register</button>
+      </div>
+
+      <form id="auth-form" onsubmit="app.handleAuthSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-input" id="auth-username" required placeholder="Enter username">
+        </div>
+
+        <div class="form-group" id="auth-email-group" style="display: none;">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="auth-email" placeholder="name@example.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="auth-password" required placeholder="Enter password">
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.75rem;" id="auth-submit-btn">
+          Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Floating Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Application Controller Script -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
