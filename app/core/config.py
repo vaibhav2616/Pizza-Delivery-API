@@ -1,6 +1,6 @@
 import os
 from typing import List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 class Settings(BaseModel):
     """
@@ -8,12 +8,14 @@ class Settings(BaseModel):
     Adheres to 12-factor application design principles.
     """
     app_name: str = "SliceCraft Artisanal Pizza Delivery API"
-    app_version: str = "2.0.0"
+    app_version: str = "2.2.0"
     debug: bool = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
     
+    # Currency configuration
+    currency_symbol: str = "₹"
+    currency_code: str = "INR"
+
     # Database Configuration:
-    # Defaults to local SQLite for instant zero-dependency execution,
-    # or PostgreSQL / MySQL via DATABASE_URL environment variable.
     database_url: str = os.getenv(
         "DATABASE_URL", 
         "sqlite:///./pizza_delivery.db"
@@ -33,13 +35,14 @@ class Settings(BaseModel):
     # CORS Configuration:
     cors_origins: List[str] = ["*"]
     
-    # Delivery fee promo rules
-    free_delivery_threshold: float = 25.0
-    standard_delivery_fee: float = 3.99
-    tax_rate: float = 0.08  # 8% sales tax
+    # Real-world Indian Food Delivery rules (Values in ₹ INR)
+    free_delivery_threshold: float = 399.0     # Free delivery on orders ₹399+
+    standard_delivery_fee: float = 49.0       # Standard delivery fee ₹49
+    tax_rate: float = 0.05                     # 5% Restaurant GST
+    welcome_wallet_bonus: float = 500.0        # ₹500 welcome wallet bonus
+    order_cashback_rate: float = 0.05          # 5% cashback on completed orders
 
     class Config:
         case_sensitive = True
 
 settings = Settings()
-
