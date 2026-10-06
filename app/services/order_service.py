@@ -5,22 +5,24 @@ from fastapi.exceptions import HTTPException
 from fastapi import status
 
 from app.models.order import Order
-from app.models.user import User
+from app.models.user import User, Address, WalletTransaction
 from app.models.menu import PizzaMenu
 from app.schemas.order import OrderModel, OrderUpdateModel, OrderStatusModel
+from app.services.menu_service import MenuService
+from app.core.config import settings
 
 SIZE_MULTIPLIERS = {
     "SMALL": 0.85,
     "MEDIUM": 1.0,
-    "LARGE": 1.25,
-    "EXTRA-LARGE": 1.5
+    "LARGE": 1.35,
+    "EXTRA-LARGE": 1.65
 }
 
 FALLBACK_SIZE_PRICES = {
-    "SMALL": 11.99,
-    "MEDIUM": 14.99,
-    "LARGE": 18.99,
-    "EXTRA-LARGE": 23.99
+    "SMALL": 249.00,
+    "MEDIUM": 349.00,
+    "LARGE": 499.00,
+    "EXTRA-LARGE": 649.00
 }
 
 VALID_STATUSES = ["PENDING", "IN-TRANSIT", "DELIVERED", "CANCELLED"]
@@ -37,7 +39,7 @@ class OrderService:
             multiplier = SIZE_MULTIPLIERS.get(norm_size, 1.0)
             unit_price = round(menu_item.base_price * multiplier, 2)
         else:
-            unit_price = FALLBACK_SIZE_PRICES.get(norm_size, 14.99)
+            unit_price = FALLBACK_SIZE_PRICES.get(norm_size, 349.00)
 
         total_price = round(unit_price * max(1, quantity), 2)
         return unit_price, total_price
@@ -51,7 +53,69 @@ class OrderService:
         pizza_name = (order_data.pizza_name or "Margherita Speciale").strip()
         quantity = max(1, order_data.quantity)
 
-        unit_price, total_price = OrderService.calculate_price(pizza_name, norm_size, quantity, db)
+        unit_price, subtotal = OrderService.calculate_price(pizza_name, norm_size, quantity, db)
+
+        # Apply Coupon Discount if provided
+        discount_amount = 0.0
+        applied_coupon_code = None
+        if order_data.coupon_code:
+            try:
+                coupon, discount = MenuService.validate_coupon(db, order_data.coupon_code, subtotal)
+                discount_amount = discount
+                applied_coupon_code = coupon.code
+            except HTTPException:
+                pass # Silently proceed without discount if invalid
+
+        discounted_subtotal = max(0.0, subtotal - discount_amount)
+
+        # Delivery Fee calculation (₹)
+        order_type = (order_data.order_type or "DELIVERY").upper()
+        if order_type == "TAKEAWAY" or discounted_subtotal >= settings.free_delivery_threshold:
+            delivery_fee = 0.0
+        else:
+            delivery_fee = settings.standard_delivery_fee
+
+        # 5% Restaurant GST
+        tax_amount = round(discounted_subtotal * settings.tax_rate, 2)
+
+        # Total Price in ₹ INR
+        final_total = round(discounted_subtotal + delivery_fee + tax_amount, 2)
+
+        # Determine delivery address from address_id or customer_address
+        resolved_address = order_data.customer_address or "Counter Pickup / Dine-in"
+        if order_data.address_id:
+            addr = db.query(Address).filter(Address.id == order_data.address_id, Address.user_id == user.id).first()
+            if addr:
+                resolved_address = f"[{addr.label}] {addr.receiver_name} ({addr.receiver_phone}): {addr.street_address}, {addr.landmark}, {addr.city} - {addr.pincode}"
+
+        # Handle Payment Method
+        payment_method = (order_data.payment_method or "WALLET").upper()
+        payment_status = "PENDING"
+
+        if payment_method == "WALLET":
+            if (user.wallet_balance or 0.0) < final_total:
+                deficit = final_total - (user.wallet_balance or 0.0)
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Insufficient SliceWallet balance (₹{user.wallet_balance:.2f}). You need ₹{deficit:.2f} more. Please top up or choose Cash on Delivery / UPI."
+                )
+            
+            # Deduct from user wallet
+            user.wallet_balance = round(user.wallet_balance - final_total, 2)
+            payment_status = "PAID"
+
+            debit_tx = WalletTransaction(
+                user_id=user.id,
+                amount=-final_total,
+                transaction_type="DEBIT",
+                description=f"Paid for Order: {pizza_name} ({norm_size})",
+                balance_after=user.wallet_balance
+            )
+            db.add(debit_tx)
+        elif payment_method in ("UPI", "CARD"):
+            payment_status = "PAID" # Simulated instant gateway approval
+        else:
+            payment_status = "PENDING" # COD
 
         new_order = Order(
             pizza_name=pizza_name,
@@ -59,9 +123,19 @@ class OrderService:
             quantity=quantity,
             order_status="PENDING",
             unit_price=unit_price,
-            total_price=total_price,
-            customer_address=(order_data.customer_address or "Counter Pickup / Dine-in").strip(),
-            customer_phone=(order_data.customer_phone or "N/A").strip(),
+            subtotal=subtotal,
+            coupon_code=applied_coupon_code,
+            discount_amount=discount_amount,
+            delivery_fee=delivery_fee,
+            tax_amount=tax_amount,
+            total_price=final_total,
+            order_type=order_type,
+            customer_address=resolved_address.strip(),
+            customer_phone=(order_data.customer_phone or user.phone or "N/A").strip(),
+            payment_method=payment_method,
+            payment_status=payment_status,
+            delivery_partner_name="Ramesh Kumar (Speedy Courier)",
+            delivery_partner_phone="+91 98765 43210",
             notes=(order_data.notes or "").strip(),
             user_id=user.id
         )
@@ -139,15 +213,18 @@ class OrderService:
         if update_data.notes is not None:
             order.notes = update_data.notes.strip()
 
-        # Recalculate price
-        unit_price, total_price = OrderService.calculate_price(
+        # Recalculate price in ₹
+        unit_price, subtotal = OrderService.calculate_price(
             order.pizza_name,
             order.get_size_code(),
             order.quantity,
             db
         )
         order.unit_price = unit_price
-        order.total_price = total_price
+        order.subtotal = subtotal
+        discounted = max(0.0, subtotal - (order.discount_amount or 0.0))
+        order.tax_amount = round(discounted * settings.tax_rate, 2)
+        order.total_price = round(discounted + (order.delivery_fee or 0.0) + order.tax_amount, 2)
 
         db.commit()
         db.refresh(order)
@@ -170,7 +247,24 @@ class OrderService:
                 detail=f"Invalid order status '{status_input}'. Must be one of {VALID_STATUSES}."
             )
 
+        prev_status = order.order_status
         order.order_status = norm_status
+
+        # If transitioning to DELIVERED for the first time, award 5% cashback to customer!
+        if norm_status == "DELIVERED" and prev_status != "DELIVERED":
+            order.payment_status = "PAID"
+            cashback = round(order.total_price * settings.order_cashback_rate, 2)
+            if cashback > 0 and order.user:
+                order.user.wallet_balance = round((order.user.wallet_balance or 0.0) + cashback, 2)
+                cb_tx = WalletTransaction(
+                    user_id=order.user_id,
+                    amount=cashback,
+                    transaction_type="CASHBACK",
+                    description=f"5% Cashback for Order #{order.id} delivered hot!",
+                    balance_after=order.user.wallet_balance
+                )
+                db.add(cb_tx)
+
         db.commit()
         db.refresh(order)
         return order
@@ -184,6 +278,19 @@ class OrderService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Only orders with status PENDING can be cancelled by customers."
             )
+
+        # If user paid with WALLET, refund the amount back to their SliceWallet!
+        if order.payment_method == "WALLET" and order.payment_status == "PAID" and order.user:
+            refund_amount = order.total_price
+            order.user.wallet_balance = round((order.user.wallet_balance or 0.0) + refund_amount, 2)
+            refund_tx = WalletTransaction(
+                user_id=order.user_id,
+                amount=refund_amount,
+                transaction_type="REFUND",
+                description=f"Refund for cancelled Order #{order.id}",
+                balance_after=order.user.wallet_balance
+            )
+            db.add(refund_tx)
 
         order_dict = order.to_dict()
         db.delete(order)
@@ -210,4 +317,3 @@ class OrderService:
             "delivered_count": sum(1 for o in all_orders if o.get_status_code() == "DELIVERED"),
             "cancelled_count": sum(1 for o in all_orders if o.get_status_code() == "CANCELLED"),
         }
-
