@@ -102,7 +102,8 @@ class OrderStatsResponseModel(BaseModel):
 
 class CouponValidateSchema(BaseModel):
     code: str = Field(..., description="Coupon code to validate")
-    cart_subtotal: float = Field(..., ge=0, description="Current cart subtotal in ₹")
+    cart_subtotal: Optional[float] = Field(None, ge=0, description="Current cart subtotal in ₹")
+    order_amount: Optional[float] = Field(None, ge=0, description="Current cart subtotal in ₹")
 
 
 class CouponResponseSchema(BaseModel):

@@ -72,11 +72,17 @@ def validate_coupon(
     db: Session = Depends(get_db)
 ):
     """Validate promo code against cart subtotal and return savings in ₹."""
-    coupon, discount = MenuService.validate_coupon(db, data.code, data.cart_subtotal)
+    subtotal = data.cart_subtotal if data.cart_subtotal is not None else (data.order_amount or 0.0)
+    coupon, discount = MenuService.validate_coupon(db, data.code, subtotal)
     return jsonable_encoder({
         "success": True,
         "code": coupon.code,
+        "discount": discount,
         "discount_amount": discount,
+        "discount_type": coupon.discount_type,
+        "discount_value": coupon.discount_value,
+        "min_order_amount": coupon.min_order_amount,
+        "max_discount": coupon.max_discount,
         "description": coupon.description,
         "message": f"🎉 Code '{coupon.code}' applied! You saved ₹{discount:.2f}."
     })

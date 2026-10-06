@@ -1184,7 +1184,7 @@ class SliceCraftApp {
       const res = await fetch('/orders/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, order_amount: subtotal })
+        body: JSON.stringify({ code, cart_subtotal: subtotal, order_amount: subtotal })
       });
       const data = await res.json();
       if (!res.ok) {
