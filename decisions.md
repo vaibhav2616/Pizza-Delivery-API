@@ -622,7 +622,7 @@ Rather than shipping large `.mp3` audio files across the wire, we synthesized a 
   - *1734*: Port of Naples seafarers' flatbreads.
   - *1889*: Queen Margherita's royal tricolor.
   - *2026*: Vesuvio Hearth's 500°C stone-deck revival.
-- Four wax-sealed pillars reinforcing artisanal integrity: 72-Hour Cold Fermentation, 500°C Beechwood Hearth, San Marzano D.O.P. Volcanic Tomatoes, and 100% Buffalo Fior di Latte.
+- Four wax-sealed pillars reinforcing artisanal integrity: 72-Hour Cold Fermentation, 500°C Beechwood Hearth, San Marzano D.O.P. Volcanic Tomatoes, and 100% Creamy Fior di Latte Mozzarella.
 
 ---
 
@@ -654,7 +654,7 @@ This is a critical distinction in real-world product engineering:
   - *Deep Wood-Fired Charcoal* (`#0e0a07`, `#17110c`): Evoking cast-iron pans and charred stone-deck ovens.
   - *Blistered Cornicione Amber & Flame Orange* (`#c2410c`, `#ea580c`, `#f59e0b`): The caramelized hue of 72-hour naturally fermented sourdough.
   - *Volcanic San Marzano Tomato Red* (`#dc2626`, `#b91c1c`): Deep, rich tomato reduction.
-  - *Molten Buffalo Fior di Latte Cream* (`#fffbeb`, `#fef3c7`): Soft, warm melted cheese pull tones.
+  - *Molten Creamy Fior di Latte Mozzarella* (`#fffbeb`, `#fef3c7`): Soft, warm melted cheese pull tones.
   - *Genovese Basil Leaf Green* (`#16a34a`, `#22c55e`): Fresh herb vibrancy.
 - **Atmospheric Floating Culinary Particles**: Basil leaves (`🌿`, `🍃`), beechwood fire embers (`✨`, `🔥`), and crushed red pepper flakes (`🌶️`) drift with gentle 3D sway and opacity pulsing.
 - **Edible Masterwork Presentation**: Rather than isolating history into a separate museum page, every pizza card across the menu is framed as a culinary masterwork with historical wax seals (e.g. `👑 Anno 1889 • Royal Savoy Decree`), flavor note melodies, FSSAI veg/non-veg dot compliance, and dynamic 3D perspective card tilt.
@@ -663,6 +663,13 @@ This is a critical distinction in real-world product engineering:
 - **Host Binding**: Configured `uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)` so any device (mobile, tablet, laptop) connected to the local Wi-Fi network can access the application via the machine's LAN IP (`http://10.99.61.114:8000/` and `http://10.99.61.114:8000/kitchen`).
 - **Relative Path API Invocation**: All JavaScript client operations call relative paths (`/orders/...`, `/auth/...`) rather than hardcoded `localhost:8000`, ensuring zero CORS friction across smartphones, tablets, or remote browsers.
 - **Mobile Sticky Cart Bar**: For mobile viewports ($\le 768\text{px}$), a persistent bottom bar displays item count, order preview, and 1-tap cart drawer access (Domino's/Swiggy/Zomato style) with minimum 44px touch targets.
+
+#### 5. Mobile-First Bottom Navigation, Zero-Bleed Viewports & Product Presentation
+- **5-Tab Mobile Bottom Navigation**: Docked at `bottom: 0` for mobile phone screens ($\le 768\text{px}$) with 5 quick-access tabs (`🍕 Menu`, `🏷️ Deals`, `✨ Crafter`, `🛵 Tracker`, `👛 Wallet`). Floating cart pill automatically sits neatly above at `bottom: 68px`.
+- **Zero Horizontal Scroll Boundary**: Universal containment with `max-width: 100vw; overflow-x: hidden;` preventing side-scrolling or off-screen clipping. Modal and drawer backdrops styled with `display: none;` when closed to eliminate layout bleed.
+- **High-Contrast Visible Buttons**: Resolved white-on-white text issues with crisp `#ffffff` cards, dark slate borders (`#cbd5e1`), vibrant crimson gradients, and bold `#0f172a` text.
+
+- **Cascading Stack Product Showcase (`/static/cascading_stack_showcase.png`)**: High-resolution 2.4K composite mockup highlighting the desktop MacBook display alongside tilted iPhone 15 Pro mobile views and floating quality seals.
 
 ---
 

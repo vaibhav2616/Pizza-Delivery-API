@@ -2,12 +2,21 @@
 
 A production-grade, highly responsive, full-stack Pizza Delivery and Kitchen Dispatch platform built with **FastAPI**, **SQLAlchemy 2.0**, **Pydantic**, **JWT Authentication (RBAC)**, and an appetizing **"Edible UI" Single Page Application (SPA)** frontend in Indian Rupees (INR ₹).
 
-![Vesuvio Hearth Banner](https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80)
+![Vesuvio Hearth Product Showcase](/static/cascading_stack_showcase.png)
 
 ---
 
 ## 🌟 Key Highlights & Features
 
+- 📱 **Mobile-First Product Presentation & Cascading Showcase**:
+  - Native docked **Mobile Bottom Navigation Bar** on smartphones with 5 quick-access tabs (`🍕 Menu`, `🏷️ Deals`, `✨ Crafter`, `🛵 Tracker`, `👛 Wallet`).
+  - Swiggy / Zomato / Domino's style sticky floating mobile cart drawer pill positioned cleanly above the bottom navbar.
+  - Strict zero-horizontal-scroll layout containment (`max-width: 100vw; overflow-x: hidden`) across all device form factors.
+  - Centered stone oven heat-up preloader with dynamic beechwood stoking progress.
+- 🇮🇳 **100% Beef & Buff Free Authentic Recipe**: Strict compliance with Indian dietary and culinary requirements. All items use Crispy Artisanal Chicken Pepperoni, Spiced Herb Chicken Meatballs, Smoked Chicken Sausage, and Fior di Latte Mozzarella with official FSSAI green (Veg) and red (Non-Veg) standard dot indicators.
+- 🎨 **High-Contrast "Edible UI" Design System**:
+  - Crystal-clear button hierarchy: Primary Crimson gradient, Secondary crisp white pills with dark slate borders (`#0f172a`), 4-size selectors (`S`, `M`, `L`, `XL`), and prominent `+ ADD` actions.
+  - Zero invisible or low-contrast text on both light card and dark hero surfaces.
 - 🏛️ **Mythical & Historical Pizza Art Gallery**: The Grand Hall of Legendary Relics featuring the *1889 Royal Margherita di Savoia*, the *1734 Seafarers' Ancient Marinara*, the *Vesuvius Caldera Diavola*, and the *Renaissance Truffle Quattro Formaggi*. Complete with wax seal stamps, parchment chronicle lore, tasting profile bars, and Renaissance acoustic lute arpeggio audio synthesis.
 - 🇮🇳 **Rupee Economy & Algorithmic Pricing**: Complete Indian Rupee (INR ₹) standard across models, database, and client. Free delivery on orders above ₹399, standard ₹49 delivery fee, and 5% GST calculation.
 - 🍕 **Artisanal Menu & Pure Veg Filtering**: Hand-stretched wood-fired pizza selections with dynamic category filtering (Classic, Vegetarian, Meat Lovers, Specialty, Sides & Dips, Desserts), FSSAI green/red dot indicators, and instant search.
@@ -21,13 +30,6 @@ A production-grade, highly responsive, full-stack Pizza Delivery and Kitchen Dis
 - 📍 **Saved Address Book**: Multi-location manager (Home, Work, Other) with 6-digit Indian PIN code and landmark validation.
 - 🧾 **FSSAI & GST Compliant Tax Invoice**: Detailed itemized tax invoices with CGST/SGST splits, company legal information, delivery courier details, and 1-click print support (`window.print()`).
 - 🔥 **Wood-Fired Stone Oven Preloader**: Interactive heat-up animation simulating stone-deck heating from 0°C to 500°C with dynamic stage messages.
-- 🎨 **Appetizing "Edible UI" Design System & Masterwork Exhibition**:
-  - Warm organic culinary palette: rustic wood-fired charcoal (`#0e0a07`, `#17110c`), caramelized cornicione crust amber (`#c2410c`, `#f59e0b`), San Marzano tomato red (`#dc2626`, `#b91c1c`), molten buffalo mozzarella (`#fffbeb`), and fresh Genovese basil (`#16a34a`).
-  - Atmospheric floating culinary objects: gently drifting Genovese basil leaves (`🌿`), wood-fire glowing embers (`✨`), and crushed red pepper flakes (`🌶️`).
-  - Every pizza card presented as a framed culinary masterwork with historical wax seals (e.g. `👑 Anno 1889 • Royal Savoy Decree`), sensory tasting note melodies, FSSAI veg/non-veg dot compliance, and dynamic 3D perspective card tilt.
-- 📱 **Mobile-First Responsive Experience**:
-  - Sticky bottom floating cart bar (Domino's / Swiggy / Zomato pattern) showing live item count, grand total, and 1-tap cart drawer access.
-  - Touch targets $\ge 44\text{px}$ and smooth horizontal touch-scrolling for dietary category pills.
 - 🌐 **Multi-Device Local Area Network (LAN) Access**:
   - Server listens on `0.0.0.0:8000` allowing any smartphone, tablet, or PC on the same Wi-Fi network to interact via `http://<LAN_IP>:8000/` (e.g., `http://10.99.61.114:8000/`).
   - All frontend API calls utilize relative paths (`/orders/...`, `/auth/...`) for seamless zero-config cross-device connectivity.
