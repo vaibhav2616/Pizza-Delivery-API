@@ -18,14 +18,14 @@ INITIAL_PIZZAS = [
         "base_price": 299.0,
         "badge": "Bestseller ⭐",
         "image_url": "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=700&q=80",
-        "ingredients": "San Marzano Tomatoes, Buffalo Mozzarella, Fresh Basil, EVOO, Sea Salt",
+        "ingredients": "San Marzano Tomatoes, Fior di Latte Mozzarella, Fresh Basil, EVOO, Sea Salt",
         "is_veg": True,
         "rating": 4.9,
         "preparation_time": 18,
         "origin_year": 1889,
         "era": "Royal Naples (1889)",
         "legend_badge": "👑 Royal Decree of Savoy",
-        "mythical_lore": "Forged in the legendary summer of 1889 by pizzaiolo Raffaele Esposito to honor Queen Margherita of Savoy. Crafted with the sacred Italian tricolor—San Marzano volcanic marinara, milk-white buffalo mozzarella, and fragrant Genovese basil. Ancient scrolls say this pie unified an empire through the art of the hearth.",
+        "mythical_lore": "Forged in the legendary summer of 1889 by pizzaiolo Raffaele Esposito to honor Queen Margherita of Savoy. Crafted with the sacred Italian tricolor—San Marzano volcanic marinara, milk-white fior di latte mozzarella, and fragrant Genovese basil. Ancient scrolls say this pie unified an empire through the art of the hearth.",
         "flavor_notes": "Volcanic Umami, Creamy Mozzarella, Aromatic Sweet Basil"
     },
     {
@@ -47,19 +47,19 @@ INITIAL_PIZZAS = [
     },
     {
         "name": "Fiery Pepperoni Inferno",
-        "description": "Artisan double pepperoni crispy cups, spicy chili hot-honey drizzle, crushed Calabrian peppers, and creamy mozzarella.",
+        "description": "Artisan smoked chicken pepperoni crispy cups, spicy chili hot-honey drizzle, crushed Calabrian peppers, and creamy mozzarella.",
         "category": "Meat",
         "base_price": 449.0,
         "badge": "Spicy 🔥",
         "image_url": "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=700&q=80",
-        "ingredients": "Double Pepperoni, Hot Honey, Mozzarella, Chili Flakes, Marinara",
+        "ingredients": "Smoked Chicken Pepperoni, Hot Honey, Mozzarella, Chili Flakes, Marinara",
         "is_veg": False,
         "rating": 4.9,
         "preparation_time": 20,
         "origin_year": 1905,
         "era": "Volcanic Caldera Revival",
         "legend_badge": "🌋 Vesuvius Magma",
-        "mythical_lore": "Legend speaks of volcanic ovens dug beneath the ash of Mount Vesuvius where embers burned white-hot. Cured pork sausage cups crisp into miniature bowls that pool with bubbling nectar, finished with a sacred wild hot-honey elixir that ignites the palate.",
+        "mythical_lore": "Legend speaks of volcanic ovens dug beneath the ash of Mount Vesuvius where embers burned white-hot. Smoked chicken pepperoni cups crisp into miniature bowls that pool with bubbling nectar, finished with a sacred wild hot-honey elixir that ignites the palate.",
         "flavor_notes": "Charred Beechwood Embers, Fiery Chili Nectar, Crispy Smoked Cups"
     },
     {
@@ -149,20 +149,20 @@ INITIAL_PIZZAS = [
     },
     {
         "name": "The Butcher's Carnivore Feast",
-        "description": "Savory Italian fennel sausage, spiced ground beef meatballs, crispy smoked bacon, and pepperoni loaded on rich herb tomato sauce.",
+        "description": "Savory smoked chicken pepperoni, seasoned herb chicken sausage, grilled chicken tikka slivers, and smoked chicken ham loaded on rich herb tomato sauce.",
         "category": "Meat",
         "base_price": 549.0,
-        "badge": "Meat Lovers 🥩",
+        "badge": "Meat Lovers 🍗",
         "image_url": "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=700&q=80",
-        "ingredients": "Italian Sausage, Smoked Bacon, Meatballs, Pepperoni, Marinara",
+        "ingredients": "Chicken Pepperoni, Chicken Sausage, Chicken Tikka, Smoked Chicken Ham, Marinara",
         "is_veg": False,
         "rating": 4.9,
         "preparation_time": 24,
         "origin_year": 1920,
         "era": "Gladiator's Feast",
         "legend_badge": "⚔️ Feast of Champions",
-        "mythical_lore": "A feast built for ancient champions celebrating great triumph. Generously layered with artisanal fennel pork, slow-braised meatballs, smoked bacon ribbons, and dark crimson marinara.",
-        "flavor_notes": "Aromatic Wild Fennel, Sizzling Smoked Bacon, Robust Herb Marinara"
+        "mythical_lore": "A feast built for ancient champions celebrating great triumph. Generously layered with artisanal spiced chicken sausage, seasoned poultry ribbons, crispy chicken pepperoni, and dark crimson marinara.",
+        "flavor_notes": "Aromatic Wild Fennel, Sizzling Smoked Chicken, Robust Herb Marinara"
     },
     {
         "name": "Artisanal Cheesy Garlic Breadsticks",
@@ -354,6 +354,8 @@ def init_db():
                 logger.info(f"Seeded Food item: {pizza_data['name']} (₹{pizza_data['base_price']})")
             else:
                 # Update price and metadata if existing
+                existing_pizza.description = pizza_data["description"]
+                existing_pizza.ingredients = pizza_data["ingredients"]
                 existing_pizza.base_price = pizza_data["base_price"]
                 existing_pizza.is_veg = pizza_data["is_veg"]
                 existing_pizza.rating = pizza_data["rating"]
