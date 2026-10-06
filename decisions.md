@@ -1,9 +1,9 @@
-# 🍕 Architecture Decision Record (ADR): SliceCraft Platform
+# 🍕 Architecture Decision Record (ADR): Vesuvio Hearth Platform
 
 ## Technical System Design & Architectural Interview
 
 > **Format**: Senior Principal Architect / Staff Systems Engineer Technical Interview  
-> **Topic**: Production Re-Engineering, High-Level & Low-Level Design (HLD/LLD), Framework Trade-offs, and Security of the SliceCraft Pizza Delivery Platform.
+> **Topic**: Production Re-Engineering, High-Level & Low-Level Design (HLD/LLD), Framework Trade-offs, and Security of the Vesuvio Hearth Pizza Delivery Platform.
 
 ---
 
@@ -27,7 +27,7 @@
 ### 1. Executive Summary & System Overview
 
 **Interviewer:**  
-*Welcome! Today we are discussing the comprehensive re-architecture of the SliceCraft Pizza Delivery & Kitchen Dispatch Platform. To kick things off, what was the primary motivation behind refactoring the original legacy codebase, and what high-level architectural goals guided your decisions?*
+*Welcome! Today we are discussing the comprehensive re-architecture of the Vesuvio Hearth Pizza Delivery & Kitchen Dispatch Platform. To kick things off, what was the primary motivation behind refactoring the original legacy codebase, and what high-level architectural goals guided your decisions?*
 
 **Candidate:**  
 Thank you. When inspecting the original repository, we identified several critical architectural liabilities:
@@ -107,7 +107,7 @@ flowchart TD
 sequenceDiagram
     autonumber
     actor Customer as Customer (johndoe)
-    participant UI as SliceCraft SPA UI
+    participant UI as Vesuvio Hearth SPA UI
     participant API as FastAPI Gateway
     participant Svc as OrderService
     participant DB as Database (SQLite / Postgres)
@@ -469,7 +469,7 @@ Every command listed in the original README (`uvicorn main:app`, `python init_db
 ### 10. Scalability, Production Readiness & Future Roadmap
 
 **Interviewer:**  
-*Assume SliceCraft grows from 100 orders/day to 100,000 orders/day across 50 franchise locations. How would you scale this architecture horizontally in production?*
+*Assume Vesuvio Hearth grows from 100 orders/day to 100,000 orders/day across 50 franchise locations. How would you scale this architecture horizontally in production?*
 
 **Candidate:**  
 Here is our architectural scaling roadmap:
@@ -538,7 +538,7 @@ flowchart TD
 *Let's talk about the user experience and localized food-tech features. Food delivery platforms in India like Zomato, Swiggy, Dominos, and La Pino'z have very specific user expectations—Rupee pricing, FSSAI veg/non-veg color coding, promo coupons, loyalty wallets, address books, and GST tax invoices. How did you incorporate these while keeping the architecture robust?*
 
 **Candidate:**  
-Great question. Rather than cloning a generic food delivery app, we designed SliceCraft with an appetizing **"Edible UI"** philosophy combined with battle-tested fintech and food-tech architecture:
+Great question. Rather than cloning a generic food delivery app, we designed Vesuvio Hearth with an appetizing **"Edible UI"** philosophy combined with battle-tested fintech and food-tech architecture:
 
 #### 1. The "Edible UI" Design System & Animated Preloader
 - **Visual Psychology**: We built a custom color palette inspired by artisanal pizza ingredients:
@@ -621,7 +621,7 @@ Rather than shipping large `.mp3` audio files across the wire, we synthesized a 
   - *19 BC*: Virgil's Aeneid eating their bread tables.
   - *1734*: Port of Naples seafarers' flatbreads.
   - *1889*: Queen Margherita's royal tricolor.
-  - *2026*: SliceCraft's 500°C stone-deck revival.
+  - *2026*: Vesuvio Hearth's 500°C stone-deck revival.
 - Four wax-sealed pillars reinforcing artisanal integrity: 72-Hour Cold Fermentation, 500°C Beechwood Hearth, San Marzano D.O.P. Volcanic Tomatoes, and 100% Buffalo Fior di Latte.
 
 ---
@@ -672,4 +672,4 @@ This is a critical distinction in real-world product engineering:
 *Outstanding breakdown. You’ve addressed every angle—from low-level Python threading mechanics to high-level microservice scalability, secure data modeling, and delivering an animated, production-ready frontend. Thank you!*
 
 **Candidate:**  
-Thank you! The SliceCraft platform is now robust, fully operational, modular, and ready for production deployment.
+Thank you! The Vesuvio Hearth platform is now robust, fully operational, modular, and ready for production deployment.

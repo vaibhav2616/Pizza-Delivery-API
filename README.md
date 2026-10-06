@@ -1,8 +1,8 @@
-# 🍕 SliceCraft Artisanal Pizza Delivery & Kitchen Dispatch Platform
+# 🍕 Vesuvio Hearth Neapolitan Pizza Delivery & Kitchen Dispatch Platform
 
 A production-grade, highly responsive, full-stack Pizza Delivery and Kitchen Dispatch platform built with **FastAPI**, **SQLAlchemy 2.0**, **Pydantic**, **JWT Authentication (RBAC)**, and an appetizing **"Edible UI" Single Page Application (SPA)** frontend in Indian Rupees (INR ₹).
 
-![SliceCraft Banner](https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80)
+![Vesuvio Hearth Banner](https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80)
 
 ---
 
