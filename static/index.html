@@ -58,6 +58,9 @@
         <button class="nav-btn active" id="nav-menu" onclick="app.showSection('menu')">
           <span>🍕</span> Menu
         </button>
+        <button class="nav-btn" id="nav-gallery" onclick="app.showSection('gallery')">
+          <span>🏛️</span> Mythical Art Gallery
+        </button>
         <button class="nav-btn" id="nav-deals" onclick="app.showSection('deals')">
           <span>🏷️</span> Deals & Coupons
         </button>
@@ -124,14 +127,17 @@
       </p>
 
       <div class="hero-cta-group">
-        <button class="btn-primary" onclick="app.scrollToMenu()">
-          <span>🍕</span> Explore Artisanal Menu
+        <button class="btn-primary" onclick="app.showSection('gallery')">
+          <span>🏛️</span> Enter Mythical Art Gallery
+        </button>
+        <button class="btn-secondary" onclick="app.scrollToMenu()">
+          <span>🍕</span> Explore Menu
         </button>
         <button class="btn-secondary" onclick="app.openCustomizerModal()">
-          <span>✨</span> Craft Custom Pizza
+          <span>✨</span> Pizza Crafter
         </button>
         <button class="btn-secondary" onclick="app.showSection('deals')">
-          <span>🏷️</span> View Deals & Offers
+          <span>🏷️</span> Deals & Offers
         </button>
       </div>
 
@@ -195,6 +201,140 @@
       </div>
     </div>
   </div>
+
+  <!-- ==========================================================================
+       View: Mythical & Historical Pizza Art Gallery ("The Hall of Legends")
+       ========================================================================== -->
+  <section class="gallery-container" id="gallery-section" style="display: none;">
+    <div class="gallery-hero-header">
+      <div class="gallery-pill">
+        <span>📜</span> The Pantheon of Legendary Relics
+      </div>
+      <h1 class="gallery-headline">The Mythical & Historical Pizza Art Gallery</h1>
+      <p class="gallery-subtext">
+        Forged in the sacred volcanic embers of Mount Vesuvius, codified in ancient maritime scrolls, and consecrated by royal European decrees. Journey across three centuries of Neapolitan alchemy.
+      </p>
+
+      <!-- Curator Persona Card -->
+      <div class="curator-card">
+        <div class="curator-avatar">👨‍🍳</div>
+        <div>
+          <div class="curator-quote">
+            "Step across the threshold of the stone deck, traveler. You are not simply beholding food; you are witnessing relics of fire, fermentation, and ancient empires. Partake and taste the legend."
+          </div>
+          <div class="curator-author">— Maestro Don Salvatore, Custodian of the Sacred Hearth</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Relic Exhibition Stage -->
+    <div class="exhibition-stage" id="gallery-exhibition-stage">
+      <div class="relic-visualizer-box">
+        <div class="relic-glow-pedestal"></div>
+        <img src="https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=700&q=80" alt="Legendary Pizza Relic" class="relic-main-image" id="stage-relic-image">
+        <div class="relic-era-badge" id="stage-relic-era">
+          <span>📜</span> Royal Naples (Anno 1889)
+        </div>
+      </div>
+
+      <div class="parchment-lore-card">
+        <div class="wax-seal" id="stage-wax-seal">👑</div>
+        <h2 class="relic-legend-title" id="stage-relic-title">1889 Royal Margherita di Savoia</h2>
+        <div class="relic-origin-row" id="stage-relic-meta">
+          <span>👑 Royal Decree of Savoy</span> • <span>Origin: Naples, Italy</span> • <span style="color: var(--basil-leaf);">🟢 Pure Veg</span>
+        </div>
+
+        <div class="relic-story-text" id="stage-relic-story">
+          <span class="drop-cap">F</span>orged in the legendary summer of 1889 by pizzaiolo Raffaele Esposito to honor Queen Margherita of Savoy. Crafted with the sacred Italian tricolor—San Marzano volcanic marinara, milk-white buffalo mozzarella, and fragrant Genovese basil. Ancient scrolls say this pie unified an empire through the art of the hearth.
+        </div>
+
+        <div class="flavor-notes-bar">
+          <span class="flavor-notes-label">✨ Sacred Flavor Profile & Tasting Notes</span>
+          <div class="flavor-notes-text" id="stage-relic-notes">
+            Volcanic Umami, Creamy Mozzarella, Aromatic Sweet Basil
+          </div>
+        </div>
+
+        <div class="relic-cta-group">
+          <div>
+            <span class="price-subtext">Legendary Offering</span>
+            <div class="relic-price-display" id="stage-relic-price">₹299.00</div>
+          </div>
+          <div style="display: flex; gap: 0.6rem;">
+            <button class="btn-secondary" style="padding: 0.65rem 1rem;" id="stage-relic-custom-btn" onclick="app.customizeSelectedRelic()">
+              <span>✨</span> Crafter
+            </button>
+            <button class="btn-primary" style="padding: 0.65rem 1.35rem;" id="stage-relic-summon-btn" onclick="app.summonRelicToCart()">
+              <span>⚔️</span> Summon to Table
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- The Relics Strip (Selector Carousel) -->
+    <div class="relics-strip-container">
+      <div class="relics-strip-header">
+        <h3 class="relics-strip-title">The Seven Sacred Relics of Pizza History</h3>
+        <span style="font-size: 0.85rem; color: var(--text-subtle);">Click any relic to inspect its chronicle</span>
+      </div>
+      <div class="relics-scroll-grid" id="relics-selector-grid">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+    <!-- The Chronicle of Pizza Timeline -->
+    <h3 class="timeline-section-title">The Chronicle of Pizza: Seven Ages of Fire & Dough</h3>
+    <p class="timeline-section-sub">From the volcanic ruins of Pompeii to the modern wood-fired renaissance.</p>
+    <div class="chronicle-timeline">
+      <div class="timeline-node">
+        <div class="timeline-year">19 BC</div>
+        <div class="timeline-title">Virgil's Aeneid: The Sacred Flatbreads</div>
+        <div class="timeline-desc">Trojan hero Aeneas and his warriors fulfill prophecy in Latium by eating the flat wheat cakes upon which their forest fruits were served.</div>
+      </div>
+      <div class="timeline-node">
+        <div class="timeline-year">1734</div>
+        <div class="timeline-title">Port of Naples: Marinara Antiqua</div>
+        <div class="timeline-desc">The oldest officially documented pie. Italian fishermen sustained their dangerous voyages with garlic, oregano, and wild olive oil.</div>
+      </div>
+      <div class="timeline-node">
+        <div class="timeline-year">1889</div>
+        <div class="timeline-title">The Royal Decree of Savoy</div>
+        <div class="timeline-desc">Pizzaiolo Raffaele Esposito bakes the tricolor Margherita for Queen Margherita; pizza rises from peasant street fuel to royal culinary art.</div>
+      </div>
+      <div class="timeline-node">
+        <div class="timeline-year">2026</div>
+        <div class="timeline-title">SliceCraft: 500°C Stone Renaissance</div>
+        <div class="timeline-desc">Reviving 72-hour sourdough cold fermentation, Mount Vesuvius plum marinara, and lightning fast 25-minute live dispatch.</div>
+      </div>
+    </div>
+
+    <!-- The Four Sacred Vows of the Stone Hearth -->
+    <h3 class="timeline-section-title" style="margin-top: 3.5rem;">The Four Sacred Vows of the Stone Deck</h3>
+    <p class="timeline-section-sub">Uncompromising principles observed across every single bake.</p>
+    <div class="vows-grid">
+      <div class="vow-card">
+        <div class="vow-icon">🌾</div>
+        <h4 class="vow-title">72-Hour Cold Fermentation</h4>
+        <p class="vow-desc">Naturally leavened sourdough rested in cave-cool chambers for digestibility and bubbly Neapolitan cornicione.</p>
+      </div>
+      <div class="vow-card">
+        <div class="vow-icon">🔥</div>
+        <h4 class="vow-title">500°C Beechwood Hearth</h4>
+        <p class="vow-desc">Fired strictly with aged beechwood and fruitwood logs, flash-baking pies in 90 seconds for crispy blistering.</p>
+      </div>
+      <div class="vow-card">
+        <div class="vow-icon">🍅</div>
+        <h4 class="vow-title">San Marzano D.O.P.</h4>
+        <p class="vow-desc">Only sweet plum tomatoes grown in the mineral-dense volcanic ash soils beneath Mount Vesuvius.</p>
+      </div>
+      <div class="vow-card">
+        <div class="vow-icon">🥛</div>
+        <h4 class="vow-title">100% Buffalo Fior di Latte</h4>
+        <p class="vow-desc">Freshly spun curd pulled daily with zero artificial starch, giving that legendary artisanal cheese stretch.</p>
+      </div>
+    </div>
+  </section>
 
   <!-- ==========================================================================
        Main View: Artisanal Menu Section

@@ -33,6 +33,7 @@ class SliceCraftApp {
     this.adminOrders = [];
     this.adminStats = null;
     this.currentView = 'menu';
+    this.selectedRelicIndex = 0;
 
     // Pizza Crafter Modal State
     this.customizerState = {
@@ -170,6 +171,34 @@ class SliceCraftApp {
     } catch (e) {
       // Audio autoplay policy or unsupported - ignore safely
     }
+  }
+
+  playLuteArpeggio() {
+    if (!this.soundEnabled) return;
+    try {
+      if (!this.audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.audioCtx = new AudioContext();
+      }
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+      const now = this.audioCtx.currentTime;
+      // Renaissance Lute / Ancient Harp Harmonic Cadence: A3, C4, E4, A4, B4, C5
+      const notes = [220, 261.63, 329.63, 440, 493.88, 523.25];
+      notes.forEach((freq, idx) => {
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        osc.type = 'triangle'; // Warm acoustic plucked string timbre
+        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+        gain.gain.setValueAtTime(0.09, now + idx * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.07 + 0.6);
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.start(now + idx * 0.07);
+        osc.stop(now + idx * 0.07 + 0.65);
+      });
+    } catch (e) {}
   }
 
   // ==========================================================================
@@ -384,7 +413,7 @@ class SliceCraftApp {
 
     this.currentView = sectionId;
 
-    const sections = ['menu', 'deals', 'wallet', 'addresses', 'tracker', 'admin'];
+    const sections = ['menu', 'gallery', 'deals', 'wallet', 'addresses', 'tracker', 'admin'];
     sections.forEach(s => {
       const el = document.getElementById(`${s}-section`);
       const navBtn = document.getElementById(`nav-${s}`);
@@ -401,7 +430,10 @@ class SliceCraftApp {
     }
 
     // Refresh Section Data
-    if (sectionId === 'tracker') {
+    if (sectionId === 'gallery') {
+      this.renderGallery();
+      this.playLuteArpeggio();
+    } else if (sectionId === 'tracker') {
       this.refreshOrderHistory();
     } else if (sectionId === 'admin') {
       this.fetchStaffData();
@@ -444,6 +476,119 @@ class SliceCraftApp {
   }
 
   // ==========================================================================
+  // Mythical & Historical Pizza Art Gallery ("The Hall of Legends")
+  // ==========================================================================
+  getGalleryRelics() {
+    if (!this.menu || this.menu.length === 0) return [];
+    const relics = this.menu.filter(p => p.origin_year || p.mythical_lore);
+    return relics.length > 0 ? relics : this.menu;
+  }
+
+  renderGallery() {
+    const relics = this.getGalleryRelics();
+    if (relics.length === 0) return;
+
+    if (this.selectedRelicIndex >= relics.length) {
+      this.selectedRelicIndex = 0;
+    }
+    const relic = relics[this.selectedRelicIndex];
+
+    // Update Grand 3D Exhibition Stage
+    const imgEl = document.getElementById('stage-relic-image');
+    const eraEl = document.getElementById('stage-relic-era');
+    const sealEl = document.getElementById('stage-wax-seal');
+    const titleEl = document.getElementById('stage-relic-title');
+    const metaEl = document.getElementById('stage-relic-meta');
+    const storyEl = document.getElementById('stage-relic-story');
+    const notesEl = document.getElementById('stage-relic-notes');
+    const priceEl = document.getElementById('stage-relic-price');
+
+    if (imgEl) imgEl.src = relic.image_url || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80';
+    if (eraEl) eraEl.innerHTML = `<span>📜</span> ${relic.era || 'Antiquity Relic'}`;
+    
+    // Choose wax seal icon
+    const seals = { 1889: '👑', 1734: '⚓', 1905: '🌋', 1533: '⚜️', 1950: '🇮🇳', 1920: '⚔️', 1981: '✨' };
+    if (sealEl) sealEl.textContent = seals[relic.origin_year] || '📜';
+
+    if (titleEl) titleEl.textContent = relic.name;
+    if (metaEl) {
+      metaEl.innerHTML = `
+        <span>${relic.legend_badge || 'Historical Relic'}</span> • 
+        <span>Anno ${relic.origin_year || 1889}</span> • 
+        <span style="color: ${relic.is_veg ? 'var(--basil-leaf)' : 'var(--tomato-red)'}; font-weight: 700;">
+          ${relic.is_veg ? '🟢 Pure Veg' : '🔴 Non-Veg'}
+        </span>
+      `;
+    }
+
+    const lore = relic.mythical_lore || relic.description || 'Crafted in the sacred Neapolitan wood-fired ovens of antiquity.';
+    if (storyEl) {
+      storyEl.innerHTML = `<span class="drop-cap">${lore[0]}</span>${lore.slice(1)}`;
+    }
+
+    if (notesEl) {
+      notesEl.textContent = relic.flavor_notes || 'Volcanic char, 72-hour sourdough, sweet plum marinara, melted dairy';
+    }
+
+    if (priceEl) {
+      priceEl.textContent = `₹${relic.base_price.toFixed(2)}`;
+    }
+
+    // Render Relics Selector Grid
+    const selectorGrid = document.getElementById('relics-selector-grid');
+    if (selectorGrid) {
+      selectorGrid.innerHTML = relics.map((r, idx) => `
+        <div class="relic-pill-card ${idx === this.selectedRelicIndex ? 'active' : ''}" onclick="app.selectRelic(${idx})">
+          <div>
+            <div class="relic-year-tag">Anno ${r.origin_year || 1889}</div>
+            <div style="font-weight: 800; font-size: 1rem; color: #fff;">${r.name}</div>
+            <div style="font-size: 0.78rem; color: var(--crust-gold); margin-top: 0.2rem;">${r.legend_badge || r.era || 'Artisanal Relic'}</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 1rem; border-top: 1px dashed rgba(245, 158, 11, 0.2); padding-top: 0.5rem;">
+            <span style="font-size: 0.75rem; color: var(--text-subtle);">${r.category}</span>
+            <span style="font-weight: 900; color: var(--crust-gold); font-size: 1.1rem;">₹${r.base_price.toFixed(2)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  selectRelic(idx) {
+    this.selectedRelicIndex = idx;
+    this.renderGallery();
+    this.playLuteArpeggio();
+    const stage = document.getElementById('gallery-exhibition-stage');
+    if (stage) stage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  summonRelicToCart() {
+    const relics = this.getGalleryRelics();
+    const relic = relics[this.selectedRelicIndex] || relics[0];
+    if (!relic) return;
+
+    this.addToCart({
+      pizza_name: relic.name,
+      pizza_size: 'MEDIUM',
+      unit_price: relic.base_price,
+      quantity: 1,
+      crust: 'Hand-Tossed Classic',
+      extra_toppings: [],
+      notes: `Mythical Relic: Anno ${relic.origin_year || 1889} | ${relic.legend_badge || ''}`
+    });
+
+    this.playChime('success');
+    this.showToast(`⚔️ Summoned ${relic.name} from antiquity to your cart!`, 'success');
+    this.toggleCartDrawer();
+  }
+
+  customizeSelectedRelic() {
+    const relics = this.getGalleryRelics();
+    const relic = relics[this.selectedRelicIndex] || relics[0];
+    if (!relic) return;
+    this.openCustomizerForPizza(relic.name);
+  }
+
+  // ==========================================================================
   // Menu Fetching, Filtering & Search
   // ==========================================================================
   async fetchMenu() {
@@ -462,6 +607,7 @@ class SliceCraftApp {
       if (!res.ok) throw new Error('Failed to load menu');
       this.menu = await res.json();
       this.renderMenu();
+      this.renderGallery();
     } catch (err) {
       if (grid) {
         grid.innerHTML = `
@@ -564,6 +710,8 @@ class SliceCraftApp {
               <div class="card-rating">★ ${(pizza.rating || 4.8).toFixed(1)}</div>
             </div>
             
+            ${pizza.origin_year ? `<div style="font-size: 0.72rem; color: var(--crust-gold); font-weight: 800; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem;"><span>📜</span> Anno ${pizza.origin_year} • ${pizza.legend_badge || pizza.era || 'Artisanal Recipe'}</div>` : ''}
+
             <p class="card-description">${pizza.description || ''}</p>
             
             <div class="card-ingredients-row">
