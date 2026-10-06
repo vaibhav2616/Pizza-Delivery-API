@@ -63,11 +63,15 @@ class TestSliceCraftAPI(unittest.TestCase):
         self.assertGreaterEqual(len(result), 8)
         names = [item["name"] for item in result]
         self.assertIn("Margherita Speciale", names)
+        self.assertIn("1734 Seafarers' Ancient Marinara", names)
         self.assertIn("Desi Paneer Makhani Burst", names)
-        # Verify Rupee prices
+        # Verify Rupee prices & mythical attributes
         margherita = next(item for item in result if item["name"] == "Margherita Speciale")
         self.assertEqual(margherita["base_price"], 299.0)
         self.assertTrue(margherita["is_veg"])
+        self.assertEqual(margherita["origin_year"], 1889)
+        self.assertTrue(len(margherita.get("mythical_lore", "")) > 10)
+        self.assertTrue(len(margherita.get("legend_badge", "")) > 0)
 
     def test_02_veg_filter(self):
         veg_items = get_menu(category=None, is_veg=True, search=None, db=self.db)
