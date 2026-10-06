@@ -406,10 +406,15 @@ class VesuvioApp {
     sections.forEach(s => {
       const el = document.getElementById(`${s}-section`);
       const navBtn = document.getElementById(`nav-${s}`);
+      const mobNavBtn = document.getElementById(`mob-nav-${s}`);
       if (el) el.style.display = (s === sectionId) ? 'block' : 'none';
       if (navBtn) {
         if (s === sectionId) navBtn.classList.add('active');
         else navBtn.classList.remove('active');
+      }
+      if (mobNavBtn) {
+        if (s === sectionId) mobNavBtn.classList.add('active');
+        else mobNavBtn.classList.remove('active');
       }
     });
 
@@ -726,12 +731,12 @@ class VesuvioApp {
                 <span class="price-subtext">Starting Price</span>
                 <span class="card-price price-display">₹${smallPrice}</span>
               </div>
-              <div style="display: flex; gap: 0.5rem;">
-                <button class="btn-secondary" style="padding: 0.45rem 0.75rem; font-size: 0.82rem; border-radius: 10px;" onclick="app.openCustomizerForPizza('${pizza.name}')" title="Customize Crust & Toppings">
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button class="card-customize-btn" onclick="app.openCustomizerForPizza('${pizza.name}')" title="Customize Crust & Toppings">
                   🛠️ Customize
                 </button>
                 <button class="card-add-btn" onclick="app.addCardPizzaToCart(this, '${pizza.name}')" title="Quick Add to Order">
-                  +
+                  + ADD
                 </button>
               </div>
             </div>

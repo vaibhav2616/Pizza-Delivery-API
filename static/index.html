@@ -113,11 +113,11 @@
       </div>
       <h1 class="hero-title">
         Crispy 72h Crust. <br>
-        Molten Buffalo Cheese. <br>
+        Molten Artisan Cheese. <br>
         <span class="text-gradient">Pure Italian Soul.</span>
       </h1>
       <p class="hero-description">
-        Crafted with 72-hour cold-fermented sourdough, volcanic San Marzano D.O.P. plum marinara, and fresh hand-pulled buffalo mozzarella. Blistered to crispy perfection and dispatched to your door in 25 minutes. Free delivery above ₹399!
+        Crafted with 72-hour cold-fermented sourdough, volcanic San Marzano D.O.P. plum marinara, and fresh hand-pulled creamy fior di latte mozzarella. Blistered to crispy perfection and dispatched to your door in 25 minutes. Free delivery above ₹399!
       </p>
 
       <div class="hero-cta-group">
@@ -168,7 +168,7 @@
           <span>🍯</span> Hot-Honey Drizzle
         </div>
         <div class="floating-topping-badge badge-top-right">
-          <span>🧀</span> Buffalo Fior di Latte
+          <span>🧀</span> Creamy Fior di Latte
         </div>
       </div>
     </div>
@@ -757,7 +757,7 @@
           <span style="font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: #fff;">Vesuvio Hearth</span>
         </div>
         <p class="footer-desc">
-          An authentic celebration of wood-fired Italian craftsmanship. 72-hour naturally fermented sourdough, volcanic San Marzano D.O.P. plum marinara, and fresh hand-pulled buffalo fior di latte.
+          An authentic celebration of wood-fired Italian craftsmanship. 72-hour naturally fermented sourdough, volcanic San Marzano D.O.P. plum marinara, and fresh hand-pulled creamy fior di latte.
         </p>
         <div class="fssai-badge">
           <span>🛡️</span> <strong>FSSAI Lic. No:</strong> 11226334000891
@@ -811,6 +811,32 @@
       </div>
     </div>
   </footer>
+
+  <!-- ==========================================================================
+       Native Mobile Bottom Navigation Bar (Phone Only: <= 768px)
+       ========================================================================== -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+    <button class="mob-nav-btn active" id="mob-nav-menu" onclick="app.showSection('menu')">
+      <span class="mob-nav-icon">🍕</span>
+      <span class="mob-nav-label">Menu</span>
+    </button>
+    <button class="mob-nav-btn" id="mob-nav-deals" onclick="app.showSection('deals')">
+      <span class="mob-nav-icon">🏷️</span>
+      <span class="mob-nav-label">Deals</span>
+    </button>
+    <button class="mob-nav-btn" id="mob-nav-custom" onclick="app.openCustomizerModal()">
+      <span class="mob-nav-icon">✨</span>
+      <span class="mob-nav-label">Crafter</span>
+    </button>
+    <button class="mob-nav-btn" id="mob-nav-tracker" onclick="app.showSection('tracker')">
+      <span class="mob-nav-icon">🛵</span>
+      <span class="mob-nav-label">Tracker</span>
+    </button>
+    <button class="mob-nav-btn" id="mob-nav-wallet" onclick="app.showSection('wallet')">
+      <span class="mob-nav-icon">👛</span>
+      <span class="mob-nav-label">Wallet</span>
+    </button>
+  </nav>
 
   <!-- ==========================================================================
        Sticky Mobile Cart Floating Bar (Swiggy / Zomato / Domino's Style)
