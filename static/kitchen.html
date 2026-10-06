@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SliceCraft Kitchen Command & Dispatch Center (KDS)</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👨‍🍳</text></svg>">
+
+  <style>
+    /* Dedicated Kitchen Display System (KDS) Styling */
+    :root {
+      --kds-bg: #0f0b08;
+      --kds-panel: #18120d;
+      --kds-panel-border: rgba(245, 158, 11, 0.2);
+      --kds-card: #201711;
+      --kds-card-border: rgba(255, 255, 255, 0.08);
+      --kds-amber: #f59e0b;
+      --kds-orange: #ea580c;
+      --kds-red: #ef4444;
+      --kds-green: #10b981;
+      --kds-blue: #3b82f6;
+    }
+
+    body.kitchen-body {
+      background: var(--kds-bg);
+      color: #fef6ea;
+      font-family: var(--font-family);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top KDS Navigation Bar */
+    .kds-header {
+      background: var(--kds-panel);
+      border-bottom: 2px solid var(--kds-panel-border);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .kds-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .kds-logo-flame {
+      font-size: 1.75rem;
+      background: rgba(234, 88, 12, 0.15);
+      border: 1px solid rgba(234, 88, 12, 0.4);
+      padding: 0.4rem 0.6rem;
+      border-radius: 10px;
+      animation: pulseFlame 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseFlame {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(234, 88, 12, 0.4)); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.8)); }
+    }
+
+    .kds-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .kds-tag {
+      background: rgba(245, 158, 11, 0.18);
+      color: var(--kds-amber);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .kds-meta-cluster {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .kds-clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--kds-amber);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .kds-staff-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.88rem;
+    }
+
+    /* KDS Main Workspace */
+    .kds-main {
+      flex: 1;
+      padding: 1.5rem 1.75rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Real-Time KPI Cards */
+    .kds-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .kds-kpi-card {
+      background: var(--kds-panel);
+      border: 1px solid var(--kds-panel-border);
+      border-radius: 14px;
+      padding: 1.15rem 1.35rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .kds-kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--kds-amber);
+    }
+
+    .kds-kpi-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.45rem;
+    }
+
+    .kds-kpi-val {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 900;
+      line-height: 1.1;
+      color: #fff;
+    }
+
+    .kds-kpi-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-top: 0.2rem;
+    }
+
+    /* Toolbar & Search Controls */
+    .kds-toolbar {
+      background: var(--kds-panel);
+      border: 1px solid var(--kds-panel-border);
+      border-radius: 14px;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kds-tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .kds-tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 9px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .kds-tab-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .kds-tab-btn.active {
+      background: var(--kds-amber);
+      color: #1a1008;
+      border-color: var(--kds-amber);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+    }
+
+    .kds-tab-badge {
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .kds-tab-btn.active .kds-tab-badge {
+      background: rgba(0, 0, 0, 0.4);
+      color: #fff;
+    }
+
+    .kds-search-box {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .kds-search-input {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 9px;
+      font-size: 0.88rem;
+      min-width: 260px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .kds-search-input:focus {
+      border-color: var(--kds-amber);
+    }
+
+    /* KDS Order Cards Grid */
+    .kds-orders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .kds-ticket {
+      background: var(--kds-card);
+      border: 1px solid var(--kds-card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      position: relative;
+    }
+
+    .kds-ticket:hover {
+      transform: translateY(-3px);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .kds-ticket.status-pending {
+      border-left: 5px solid var(--kds-amber);
+    }
+
+    .kds-ticket.status-in-transit {
+      border-left: 5px solid var(--kds-orange);
+    }
+
+    .kds-ticket.status-delivered {
+      border-left: 5px solid var(--kds-green);
+      opacity: 0.85;
+    }
+
+    .kds-ticket.status-cancelled {
+      border-left: 5px solid var(--kds-red);
+      opacity: 0.65;
+    }
+
+    .ticket-header {
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.85rem 1.15rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .ticket-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .ticket-mode-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .mode-delivery {
+      background: rgba(59, 130, 246, 0.18);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+    }
+
+    .mode-takeaway {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .ticket-body {
+      padding: 1.15rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .customer-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.88rem;
+    }
+
+    .customer-name {
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .ticket-time {
+      font-size: 0.78rem;
+      color: var(--text-subtle);
+    }
+
+    .ticket-address {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.45rem 0.65rem;
+      border-radius: 8px;
+      line-height: 1.4;
+    }
+
+    .ticket-items-list {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 0.75rem 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .ticket-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      font-size: 0.88rem;
+    }
+
+    .ticket-item-qty {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      color: var(--kds-amber);
+      margin-right: 0.4rem;
+    }
+
+    .ticket-item-details {
+      font-size: 0.78rem;
+      color: var(--text-subtle);
+      margin-top: 0.15rem;
+    }
+
+    .ticket-special-note {
+      background: rgba(234, 88, 12, 0.12);
+      border-left: 3px solid var(--kds-orange);
+      padding: 0.45rem 0.65rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: #fed7aa;
+      font-style: italic;
+    }
+
+    .ticket-footer {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.85rem 1.15rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .ticket-total {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--kds-amber);
+    }
+
+    .ticket-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .btn-action-bake {
+      background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 0.95rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 10px rgba(234, 88, 12, 0.4);
+    }
+
+    .btn-action-bake:hover {
+      transform: scale(1.03);
+      filter: brightness(1.1);
+    }
+
+    .btn-action-deliver {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 0.95rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-action-deliver:hover {
+      transform: scale(1.03);
+      filter: brightness(1.1);
+    }
+
+    .btn-action-cancel {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-cancel:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-action-invoice {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-invoice:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Staff Login Modal */
+    #kitchen-auth-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 7, 5, 0.94);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .kitchen-login-box {
+      background: var(--kds-panel);
+      border: 2px solid var(--kds-panel-border);
+      border-radius: 18px;
+      padding: 2.25rem;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(245, 158, 11, 0.15);
+      text-align: center;
+    }
+
+    .kitchen-login-icon {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+      display: inline-block;
+      animation: pulseFlame 2s infinite ease-in-out;
+    }
+
+    .kitchen-login-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .kitchen-login-sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kitchen-input-group {
+      text-align: left;
+      margin-bottom: 1.15rem;
+    }
+
+    .kitchen-input-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+    }
+
+    .kitchen-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 0.75rem 1rem;
+      border-radius: 9px;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .kitchen-input:focus {
+      border-color: var(--kds-amber);
+    }
+
+    .kitchen-login-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #c2410c 0%, #f59e0b 100%);
+      color: #1a1008;
+      border: none;
+      padding: 0.85rem;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35);
+    }
+
+    .kitchen-login-btn:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+    }
+
+    .demo-credentials-card {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px dashed rgba(245, 158, 11, 0.3);
+      border-radius: 10px;
+      padding: 0.85rem;
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: left;
+    }
+
+    .demo-credentials-card strong {
+      color: var(--kds-amber);
+    }
+  </style>
+</head>
+<body class="kitchen-body">
+
+  <!-- ==========================================================================
+       Staff Login Modal Overlay (Mandatory RBAC Guard)
+       ========================================================================== -->
+  <div id="kitchen-auth-modal" style="display: none;">
+    <div class="kitchen-login-box">
+      <div class="kitchen-login-icon">👨‍🍳</div>
+      <h2 class="kitchen-login-title">Kitchen Command & Dispatch</h2>
+      <p class="kitchen-login-sub">Authorized kitchen staff & pizzaiolos only.</p>
+
+      <form id="kitchen-login-form" onsubmit="kitchen.handleLogin(event)">
+        <div class="kitchen-input-group">
+          <label>Staff Username</label>
+          <input type="text" class="kitchen-input" id="k-username" required value="admin" placeholder="Staff Username">
+        </div>
+        <div class="kitchen-input-group">
+          <label>Password</label>
+          <input type="password" class="kitchen-input" id="k-password" required value="Admin@123" placeholder="Staff Password">
+        </div>
+
+        <button type="submit" class="kitchen-login-btn" id="k-submit-btn">
+          <span>🔥</span> Enter Dispatch Center
+        </button>
+      </form>
+
+      <div class="demo-credentials-card">
+        <div>🔑 <strong>Staff Credentials:</strong></div>
+        <div style="margin-top: 0.25rem;">Username: <strong>admin</strong> | Password: <strong>Admin@123</strong></div>
+        <div style="font-size: 0.72rem; color: var(--text-subtle); margin-top: 0.35rem;">Access restricted to accounts with is_staff=True privilege.</div>
+      </div>
+
+      <div style="margin-top: 1.25rem;">
+        <a href="/" style="color: var(--text-subtle); font-size: 0.84rem; text-decoration: none;">← Return to Customer Storefront</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Kitchen Display System (KDS) Header
+       ========================================================================== -->
+  <header class="kds-header">
+    <div class="kds-brand">
+      <div class="kds-logo-flame">🔥</div>
+      <div>
+        <div class="kds-title">
+          SliceCraft Kitchen Command
+          <span class="kds-tag">KDS Node #01</span>
+        </div>
+        <div style="font-size: 0.76rem; color: var(--text-subtle);">500°C Stone-Deck Wood-Fired Live Dispatch</div>
+      </div>
+    </div>
+
+    <div class="kds-meta-cluster">
+      <div class="kds-clock" id="kds-live-clock">12:00:00</div>
+      
+      <button class="kds-tab-btn" id="kds-sound-btn" onclick="kitchen.toggleSound()" title="Toggle Order Chime">
+        🔔 Sound ON
+      </button>
+
+      <button class="kds-tab-btn" id="kds-autorefresh-btn" onclick="kitchen.toggleAutoRefresh()">
+        🔄 Auto (10s)
+      </button>
+
+      <div class="kds-staff-badge">
+        <span>👨‍🍳</span>
+        <span id="kds-staff-name" style="font-weight: 700;">Head Pizzaiolo</span>
+      </div>
+
+      <a href="/" class="kds-tab-btn" style="text-decoration: none;">
+        <span>🍕</span> Storefront
+      </a>
+
+      <button class="kds-tab-btn" style="color: #f87171; border-color: rgba(239, 68, 68, 0.3);" onclick="kitchen.logout()">
+        <span>🔒</span> Sign Out
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       Main Workspace
+       ========================================================================== -->
+  <main class="kds-main">
+    
+    <!-- Real-Time Kitchen KPIs -->
+    <section class="kds-kpi-grid">
+      <div class="kds-kpi-card">
+        <div class="kds-kpi-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">💰</div>
+        <div>
+          <div class="kds-kpi-val" id="k-revenue">₹0.00</div>
+          <div class="kds-kpi-title">Total Sales Revenue</div>
+        </div>
+      </div>
+
+      <div class="kds-kpi-card">
+        <div class="kds-kpi-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">⏳</div>
+        <div>
+          <div class="kds-kpi-val" id="k-pending">0</div>
+          <div class="kds-kpi-title">In Queue (Pending)</div>
+        </div>
+      </div>
+
+      <div class="kds-kpi-card">
+        <div class="kds-kpi-icon" style="background: rgba(234, 88, 12, 0.15); color: #ea580c;">🔥</div>
+        <div>
+          <div class="kds-kpi-val" id="k-baking">0</div>
+          <div class="kds-kpi-title">In Oven / Dispatched</div>
+        </div>
+      </div>
+
+      <div class="kds-kpi-card">
+        <div class="kds-kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">✅</div>
+        <div>
+          <div class="kds-kpi-val" id="k-delivered">0</div>
+          <div class="kds-kpi-title">Delivered & Complete</div>
+        </div>
+      </div>
+
+      <div class="kds-kpi-card">
+        <div class="kds-kpi-icon" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">📦</div>
+        <div>
+          <div class="kds-kpi-val" id="k-total">0</div>
+          <div class="kds-kpi-title">Total Orders Handled</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toolbar: Status Filter Tabs & Order Search -->
+    <div class="kds-toolbar">
+      <div class="kds-tabs">
+        <button class="kds-tab-btn active" data-filter="all" onclick="kitchen.setFilter('all')">
+          <span>All Orders</span>
+          <span class="kds-tab-badge" id="tab-badge-all">0</span>
+        </button>
+        <button class="kds-tab-btn" data-filter="PENDING" onclick="kitchen.setFilter('PENDING')">
+          <span>⏳ Queue</span>
+          <span class="kds-tab-badge" id="tab-badge-pending">0</span>
+        </button>
+        <button class="kds-tab-btn" data-filter="IN-TRANSIT" onclick="kitchen.setFilter('IN-TRANSIT')">
+          <span>🔥 In Oven / Dispatched</span>
+          <span class="kds-tab-badge" id="tab-badge-transit">0</span>
+        </button>
+        <button class="kds-tab-btn" data-filter="DELIVERED" onclick="kitchen.setFilter('DELIVERED')">
+          <span>✅ Delivered</span>
+          <span class="kds-tab-badge" id="tab-badge-delivered">0</span>
+        </button>
+        <button class="kds-tab-btn" data-filter="CANCELLED" onclick="kitchen.setFilter('CANCELLED')">
+          <span>❌ Cancelled</span>
+          <span class="kds-tab-badge" id="tab-badge-cancelled">0</span>
+        </button>
+      </div>
+
+      <div class="kds-search-box">
+        <input type="text" class="kds-search-input" id="kds-search" placeholder="Search Order #, phone, customer, pizza..." oninput="kitchen.handleSearch(this.value)">
+        <button class="kds-tab-btn" onclick="kitchen.fetchData()" title="Force Refresh">
+          🔄 Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Orders Grid -->
+    <div class="kds-orders-grid" id="kds-orders-container">
+      <!-- Dynamically generated via kitchen.js -->
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       Kitchen Order Ticket (KOT) / Invoice Modal
+       ========================================================================== -->
+  <div class="modal-backdrop" id="kot-modal" style="display: none;" onclick="kitchen.closeKotModal(event)">
+    <div class="modal-dialog" style="max-width: 600px; background: #fff; color: #1e1e1e; border-radius: 12px; padding: 1.5rem;" onclick="event.stopPropagation()">
+      <div class="modal-header" style="border-bottom: 2px dashed #cbd5e1; padding-bottom: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h2 style="font-family: var(--font-display); font-size: 1.35rem; color: #0f172a; margin: 0;">🍕 SLICECRAFT PIZZERIA</h2>
+          <div style="font-size: 0.8rem; color: #64748b;">KITCHEN ORDER TICKET (KOT) & TAX INVOICE</div>
+        </div>
+        <button style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;" onclick="kitchen.closeKotModal()">✕</button>
+      </div>
+
+      <div id="kot-printable-content">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button class="btn-secondary" style="color: #334155; border: 1px solid #cbd5e1; background: #f8fafc; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 700; cursor: pointer;" onclick="window.print()">
+          🖨️ Print KOT
+        </button>
+        <button class="btn-primary" style="background: #ea580c; color: #fff; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 700; cursor: pointer;" onclick="kitchen.closeKotModal()">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="kds-toast-container"></div>
+
+  <script src="/static/js/kitchen.js"></script>
+</body>
+</html>

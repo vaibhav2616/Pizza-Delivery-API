@@ -116,6 +116,17 @@ def serve_ui():
         "version": "2.0.0"
     })
 
+# Segregated Kitchen Command & Dispatch Center (Staff & Chefs Only)
+@app.get("/kitchen", summary="Kitchen Command & Dispatch Center", response_class=FileResponse)
+def serve_kitchen():
+    kitchen_path = STATIC_DIR / "kitchen.html"
+    if kitchen_path.exists():
+        return FileResponse(str(kitchen_path))
+    return JSONResponse({
+        "message": "Kitchen Dispatch Center is initializing.",
+        "version": "2.0.0"
+    })
+
 # System Health Check Endpoint
 @app.get("/health", summary="System Health & Readiness Check")
 def health_check():
@@ -128,3 +139,8 @@ def health_check():
 # Register Routers
 app.include_router(auth_router)
 app.include_router(order_router)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
