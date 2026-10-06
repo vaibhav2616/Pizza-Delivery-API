@@ -222,5 +222,15 @@ class TestSliceCraftAPI(unittest.TestCase):
         self.assertEqual(large_unit, round(299.0 * 1.35, 2)) # ₹403.65
         self.assertLess(small_unit, large_unit)
 
+    def test_13_static_routes_and_kitchen_portal(self):
+        from main import serve_ui, serve_kitchen
+        ui_res = serve_ui()
+        kitchen_res = serve_kitchen()
+        # Verify both return valid file responses
+        self.assertTrue(hasattr(ui_res, "path"))
+        self.assertTrue(ui_res.path.endswith("index.html"))
+        self.assertTrue(hasattr(kitchen_res, "path"))
+        self.assertTrue(kitchen_res.path.endswith("kitchen.html"))
+
 if __name__ == "__main__":
     unittest.main()
