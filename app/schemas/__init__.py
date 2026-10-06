@@ -1,6 +1,10 @@
 from app.schemas.auth import (
     SignUpModel,
     LoginModel,
+    AddressCreateSchema,
+    AddressResponseSchema,
+    WalletTopupSchema,
+    WalletTransactionResponseSchema,
     UserResponseModel,
     UserProfileUpdateModel,
     TokenResponseModel
@@ -10,7 +14,9 @@ from app.schemas.order import (
     OrderStatusModel,
     OrderUpdateModel,
     OrderResponseModel,
-    OrderStatsResponseModel
+    OrderStatsResponseModel,
+    CouponValidateSchema,
+    CouponResponseSchema
 )
 from app.schemas.menu import PizzaMenuItemSchema
 from app.core.config import settings
@@ -26,6 +32,10 @@ class Settings(BaseModel):
 __all__ = [
     "SignUpModel",
     "LoginModel",
+    "AddressCreateSchema",
+    "AddressResponseSchema",
+    "WalletTopupSchema",
+    "WalletTransactionResponseSchema",
     "UserResponseModel",
     "UserProfileUpdateModel",
     "TokenResponseModel",
@@ -34,7 +44,8 @@ __all__ = [
     "OrderUpdateModel",
     "OrderResponseModel",
     "OrderStatsResponseModel",
+    "CouponValidateSchema",
+    "CouponResponseSchema",
     "PizzaMenuItemSchema",
     "Settings"
 ]
-

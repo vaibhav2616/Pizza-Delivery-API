@@ -1,7 +1,26 @@
 """
-Root schemas module - re-exports from app.schemas for backward compatibility.
+Root schemas shim for backward compatibility.
+Exposes all Pydantic schemas from app.schemas.
 """
-from app.core.config import Settings
-from app.schemas.auth import SignUpModel, LoginModel, UserResponseModel
-from app.schemas.order import OrderModel, OrderStatusModel, OrderResponseModel
-from app.schemas.menu import PizzaMenuItemSchema
+from app.schemas import *
+
+__all__ = [
+    "SignUpModel",
+    "LoginModel",
+    "AddressCreateSchema",
+    "AddressResponseSchema",
+    "WalletTopupSchema",
+    "WalletTransactionResponseSchema",
+    "UserResponseModel",
+    "UserProfileUpdateModel",
+    "TokenResponseModel",
+    "OrderModel",
+    "OrderStatusModel",
+    "OrderUpdateModel",
+    "OrderResponseModel",
+    "OrderStatsResponseModel",
+    "CouponValidateSchema",
+    "CouponResponseSchema",
+    "PizzaMenuItemSchema",
+    "Settings"
+]
