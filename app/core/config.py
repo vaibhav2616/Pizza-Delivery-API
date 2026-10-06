@@ -7,7 +7,7 @@ class Settings(BaseModel):
     High-Level Application Configuration and Environment Settings.
     Adheres to 12-factor application design principles.
     """
-    app_name: str = "SliceCraft Artisanal Pizza Delivery API"
+    app_name: str = "Vesuvio Hearth Neapolitan Pizza Delivery API"
     app_version: str = "2.2.0"
     debug: bool = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
     

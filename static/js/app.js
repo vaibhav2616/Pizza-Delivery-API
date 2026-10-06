@@ -1,16 +1,16 @@
 /**
- * SliceCraft Artisanal Pizza Delivery - Front-End Application Controller
+ * Vesuvio Hearth Neapolitan Pizza Delivery - Front-End Application Controller
  * High-performance Single Page Application (SPA) with reactive state, stone-oven preloader,
- * Rupee pricing, SliceWallet, Promo Coupons, Address Book, and GST-compliant Tax Invoices.
+ * Rupee pricing, Vesuvio Wallet, Promo Coupons, Address Book, and GST-compliant Tax Invoices.
  */
 
-class SliceCraftApp {
+class VesuvioApp {
   constructor() {
-    this.tokenKey = 'slicecraft_access_token';
-    this.refreshKey = 'slicecraft_refresh_token';
-    this.userKey = 'slicecraft_user';
-    this.cartKey = 'slicecraft_cart';
-    this.soundKey = 'slicecraft_sound_enabled';
+    this.tokenKey = 'vesuvio_access_token';
+    this.refreshKey = 'vesuvio_refresh_token';
+    this.userKey = 'vesuvio_user';
+    this.cartKey = 'vesuvio_cart';
+    this.soundKey = 'vesuvio_sound_enabled';
 
     // Reactive Application State
     this.currentUser = null;
@@ -1777,7 +1777,7 @@ class SliceCraftApp {
         <div class="invoice-header">
           <div>
             <div class="invoice-brand">
-              <span>🍕</span> SliceCraft Pizzeria
+              <span>🍕</span> Vesuvio Hearth Neapolitan Pizzeria
             </div>
             <div class="invoice-tax-meta">
               Stone-Deck Wood-Fired Kitchen Dispatch<br>
@@ -1862,7 +1862,7 @@ class SliceCraftApp {
         </table>
 
         <div style="font-size: 0.75rem; color: #94a3b8; text-align: center; margin-top: 1.5rem; border-top: 1px dashed #cbd5e1; padding-top: 0.75rem;">
-          Thank you for choosing SliceCraft Wood-Fired Pizzeria! This is a computer generated tax invoice.
+          Thank you for choosing Vesuvio Hearth Neapolitan Pizzeria! This is a computer generated tax invoice.
         </div>
       </div>
     `;
@@ -2026,7 +2026,7 @@ class SliceCraftApp {
     const tabSignup = document.getElementById('auth-tab-signup');
 
     if (tab === 'login') {
-      if (title) title.textContent = 'Sign In to SliceCraft';
+      if (title) title.textContent = 'Sign In to Vesuvio Hearth';
       if (submitBtn) submitBtn.textContent = 'Sign In';
       if (emailGroup) emailGroup.style.display = 'none';
       tabLogin?.classList.add('active');
@@ -2035,7 +2035,7 @@ class SliceCraftApp {
       if (form) form.dataset.mode = 'login';
     } else {
       if (title) title.textContent = 'Create Foodie Account';
-      if (submitBtn) submitBtn.textContent = 'Register (Get ₹500 SliceWallet Bonus)';
+      if (submitBtn) submitBtn.textContent = 'Register (Get ₹500 Vesuvio Bonus)';
       if (emailGroup) emailGroup.style.display = 'block';
       tabSignup?.classList.add('active');
       tabLogin?.classList.remove('active');
@@ -2081,7 +2081,7 @@ class SliceCraftApp {
 }
 
 // Global Application Instance
-const app = new SliceCraftApp();
+const app = new VesuvioApp();
 window.addEventListener('DOMContentLoaded', () => {
   app.init();
 });
