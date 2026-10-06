@@ -63,7 +63,7 @@ def custom_openapi():
         return app.openapi_schema
 
     openapi_schema = get_openapi(
-        title="SliceCraft Artisanal Pizza Delivery API",
+        title="Vesuvio Hearth Neapolitan Pizza Delivery API",
         version="2.0.0",
         description="Full REST API documentation with JWT Bearer Authentication and interactive endpoints.",
         routes=app.routes,
@@ -112,7 +112,7 @@ def serve_ui():
     if index_path.exists():
         return FileResponse(str(index_path))
     return JSONResponse({
-        "message": "SliceCraft Pizza API is running. Visit /docs for Swagger UI.",
+        "message": "Vesuvio Hearth Neapolitan Pizza API is running. Visit /docs for Swagger UI.",
         "version": "2.0.0"
     })
 
@@ -132,7 +132,7 @@ def serve_kitchen():
 def health_check():
     return {
         "status": "healthy",
-        "service": "SliceCraft Artisanal Pizza API",
+        "service": "Vesuvio Hearth Neapolitan Pizza API",
         "version": settings.app_version
     }
 

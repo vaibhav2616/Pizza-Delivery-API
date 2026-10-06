@@ -49,7 +49,7 @@ class AuthService:
             user_id=new_user.id,
             amount=welcome_bonus,
             transaction_type="WELCOME_BONUS",
-            description=f"Welcome to SliceCraft! ₹{welcome_bonus} added to your SliceWallet.",
+            description=f"Welcome to Vesuvio Hearth! ₹{welcome_bonus} added to your Vesuvio Wallet.",
             balance_after=welcome_bonus
         )
         db.add(init_tx)

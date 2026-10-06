@@ -76,7 +76,9 @@ def login(
     return jsonable_encoder({
         "success": True,
         "access": access_token,
+        "access_token": access_token,
         "refresh": refresh_token,
+        "refresh_token": refresh_token,
         "token_type": "Bearer",
         "user": db_user.to_dict()
     })
@@ -103,6 +105,7 @@ def refresh_token(Authorize: AuthJWT = Depends()):
     return jsonable_encoder({
         "success": True,
         "access": new_access_token,
+        "access_token": new_access_token,
         "token_type": "Bearer"
     })
 

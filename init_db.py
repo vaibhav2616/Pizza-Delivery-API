@@ -8,7 +8,7 @@ from app.models.coupon import Coupon
 from app.core.security import hash_password
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("slicecraft.init_db")
+logger = logging.getLogger("vesuvio.init_db")
 
 INITIAL_PIZZAS = [
     {
@@ -269,7 +269,7 @@ def init_db():
         if not admin:
             admin = User(
                 username="admin",
-                email="admin@slicecraft.com",
+                email="admin@vesuviohearth.com",
                 password=hash_password("Admin@123"),
                 phone="+91 99001 23456",
                 default_address="Kitchen Command Center, 100 Feet Rd, Indiranagar, Bengaluru",
@@ -327,7 +327,7 @@ def init_db():
                 user_id=customer.id,
                 amount=500.0,
                 transaction_type="WELCOME_BONUS",
-                description="Welcome to SliceCraft! ₹500 credited to your SliceWallet.",
+                description="Welcome to Vesuvio Hearth! ₹500 credited to your Vesuvio Wallet.",
                 balance_after=500.0
             )
             db.add(tx)

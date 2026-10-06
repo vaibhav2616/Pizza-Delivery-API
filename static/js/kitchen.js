@@ -1,16 +1,16 @@
 /**
- * SliceCraft Kitchen Command & Dispatch Center (KDS)
+ * Vesuvio Hearth Kitchen Command & Dispatch Center (KDS)
  * Dedicated Kitchen Display System for Kitchen Staff, Chefs, and Pizzaiolos.
  * Real-time order queue, 500°C stone oven staging, dispatch transitions, and financial KPIs in ₹ INR.
  */
 
 class KitchenKDS {
   constructor() {
-    this.tokenKey = 'slicecraft_kitchen_token';
-    this.userKey = 'slicecraft_kitchen_user';
-    this.soundKey = 'slicecraft_kitchen_sound';
+    this.tokenKey = 'vesuvio_kitchen_token';
+    this.userKey = 'vesuvio_kitchen_user';
+    this.soundKey = 'vesuvio_kitchen_sound';
 
-    this.token = localStorage.getItem(this.tokenKey) || localStorage.getItem('slicecraft_access_token');
+    this.token = localStorage.getItem(this.tokenKey) || localStorage.getItem('vesuvio_access_token');
     this.currentUser = null;
     this.orders = [];
     this.stats = null;
@@ -98,7 +98,7 @@ class KitchenKDS {
         throw new Error('Access Denied: Account does not possess Kitchen Staff privileges.');
       }
 
-      this.token = data.access_token;
+      this.token = data.access || data.access_token;
       this.currentUser = data.user;
       localStorage.setItem(this.tokenKey, this.token);
       localStorage.setItem(this.userKey, JSON.stringify(data.user));
@@ -586,7 +586,7 @@ class KitchenKDS {
         </div>
 
         <div style="margin-top: 1.25rem; text-align: center; font-size: 0.75rem; color: #94a3b8; border-top: 1px dashed #cbd5e1; padding-top: 0.75rem;">
-          🍕 SliceCraft Artisanal Wood-Fired Pizzeria • 500°C Beechwood Oven
+          🍕 Vesuvio Hearth Neapolitan Pizzeria • 500°C Volcanic Stone Hearth
         </div>
       </div>
     `;

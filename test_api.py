@@ -36,7 +36,7 @@ from app.services.order_service import OrderService
 from app.services.menu_service import MenuService
 from app.services.auth_service import AuthService
 
-class TestSliceCraftAPI(unittest.TestCase):
+class TestVesuvioAPI(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         init_db()
@@ -161,7 +161,7 @@ class TestSliceCraftAPI(unittest.TestCase):
         self.assertGreater(order_dict["discount_amount"], 0)
         self.assertGreater(order_dict["total_price"], 0)
         
-        TestSliceCraftAPI.sample_order_id = order_dict["id"]
+        TestVesuvioAPI.sample_order_id = order_dict["id"]
 
     def test_08_staff_order_management(self):
         # Staff can list all orders
@@ -170,7 +170,7 @@ class TestSliceCraftAPI(unittest.TestCase):
         self.assertGreater(len(all_orders), 0)
 
         # Staff can update order status
-        order_id = getattr(TestSliceCraftAPI, "sample_order_id", 1)
+        order_id = getattr(TestVesuvioAPI, "sample_order_id", 1)
         update_in = OrderStatusModel(order_status="IN-TRANSIT")
         res = update_order_status(id=order_id, order=update_in, current_staff=self.admin_user, db=self.db)
         self.assertTrue(res.get("success"))
@@ -208,7 +208,7 @@ class TestSliceCraftAPI(unittest.TestCase):
         self.assertAlmostEqual(self.customer_user.wallet_balance, initial_balance, places=1)
 
     def test_11_order_modification_constraints(self):
-        order_id = getattr(TestSliceCraftAPI, "sample_order_id", 1)
+        order_id = getattr(TestVesuvioAPI, "sample_order_id", 1)
         mod_in = OrderModel(quantity=5, pizza_size="LARGE")
         with self.assertRaises(HTTPException) as ctx:
             update_order(id=order_id, order=mod_in, current_user=self.customer_user, db=self.db)
