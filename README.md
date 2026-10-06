@@ -21,17 +21,23 @@ A production-grade, highly responsive, full-stack Pizza Delivery and Kitchen Dis
 - 📍 **Saved Address Book**: Multi-location manager (Home, Work, Other) with 6-digit Indian PIN code and landmark validation.
 - 🧾 **FSSAI & GST Compliant Tax Invoice**: Detailed itemized tax invoices with CGST/SGST splits, company legal information, delivery courier details, and 1-click print support (`window.print()`).
 - 🔥 **Wood-Fired Stone Oven Preloader**: Interactive heat-up animation simulating stone-deck heating from 0°C to 500°C with dynamic stage messages.
-- 🎨 **Appetizing "Edible UI" Design System**:
-  - Colors inspired by crust gold, molten mozzarella, San Marzano tomato red, and fresh Genovese basil.
-  - Rotating 3D pizza stage with rising steam particles and wood-fired oven glow.
-  - Zero-asset Web Audio API synthesized chimes for tactile feedback.
-- 👨‍🍳 **Kitchen Staff Dispatch Center (Strict RBAC)**:
-  - Real-time business intelligence telemetry (Total Revenue in ₹, Total Orders, In Queue, In Transit, Delivered).
-  - Live dispatch board for order stage transitions (`PENDING` ➔ `IN-TRANSIT` ➔ `DELIVERED`).
-  - Strict Role-Based Access Control preventing unauthorized customer access.
-- ⚡ **Interactive Demo Persona Switcher**: One-click authentication switcher for instant testing:
-  - **Customer**: `johndoe` / `Password123!` (₹500 wallet balance, 2 saved addresses)
-  - **Kitchen Staff / Admin**: `admin` / `Admin@123` (₹10,000 wallet, full dispatch command center)
+- 🎨 **Appetizing "Edible UI" Design System & Masterwork Exhibition**:
+  - Warm organic culinary palette: rustic wood-fired charcoal (`#0e0a07`, `#17110c`), caramelized cornicione crust amber (`#c2410c`, `#f59e0b`), San Marzano tomato red (`#dc2626`, `#b91c1c`), molten buffalo mozzarella (`#fffbeb`), and fresh Genovese basil (`#16a34a`).
+  - Atmospheric floating culinary objects: gently drifting Genovese basil leaves (`🌿`), wood-fire glowing embers (`✨`), and crushed red pepper flakes (`🌶️`).
+  - Every pizza card presented as a framed culinary masterwork with historical wax seals (e.g. `👑 Anno 1889 • Royal Savoy Decree`), sensory tasting note melodies, FSSAI veg/non-veg dot compliance, and dynamic 3D perspective card tilt.
+- 📱 **Mobile-First Responsive Experience**:
+  - Sticky bottom floating cart bar (Domino's / Swiggy / Zomato pattern) showing live item count, grand total, and 1-tap cart drawer access.
+  - Touch targets $\ge 44\text{px}$ and smooth horizontal touch-scrolling for dietary category pills.
+- 🌐 **Multi-Device Local Area Network (LAN) Access**:
+  - Server listens on `0.0.0.0:8000` allowing any smartphone, tablet, or PC on the same Wi-Fi network to interact via `http://<LAN_IP>:8000/` (e.g., `http://10.99.61.114:8000/`).
+  - All frontend API calls utilize relative paths (`/orders/...`, `/auth/...`) for seamless zero-config cross-device connectivity.
+- 👨‍🍳 **Strictly Segregated Kitchen Command & Dispatch Center (`/kitchen`)**:
+  - Independent full-screen Kitchen Display System (KDS) dedicated exclusively to chefs and kitchen managers.
+  - Guarded by mandatory staff authentication (`is_staff: true`).
+  - Real-time financial telemetry in Indian Rupees (Total Sales Revenue, Queue, Oven Baking, Completed Deliveries).
+  - Single-tap order stage transitions (`🔥 Start Baking` ➔ `✅ Mark Delivered` ➔ `🧾 Print KOT`).
+  - Audio order alert bell and 10-second auto-polling.
+  - Customer storefront is 100% foodie-focused with zero staff/admin login confusion; discreet staff access is provided in the footer.
 - 🧪 **100% Passing Automated Test Suite**: Comprehensive unit tests covering authentication, wallet refunds, coupon validation, pricing multipliers, and RBAC security.
 
 ---

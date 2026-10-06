@@ -20,6 +20,7 @@
 10. [Scalability, Production Readiness & Future Roadmap](#10-scalability-production-readiness--future-roadmap)
 11. [Feature Enrichment: Rupee Economy, SliceWallet, Edible UI & Tax Invoicing](#11-feature-enrichment-rupee-economy-slicewallet-edible-ui--tax-invoicing)
 12. [The Mythical & Historical Pizza Art Gallery: Architectural Lore & Sensory Immersion](#12-the-mythical--historical-pizza-art-gallery-architectural-lore--sensory-immersion)
+13. [Strict Role Segregation, Kitchen Display System (KDS), Multi-Device LAN Access & Edible Presentation](#13-strict-role-segregation-kitchen-display-system-kds-multi-device-lan-access--edible-presentation)
 
 ---
 
@@ -622,6 +623,46 @@ Rather than shipping large `.mp3` audio files across the wire, we synthesized a 
   - *1889*: Queen Margherita's royal tricolor.
   - *2026*: SliceCraft's 500°C stone-deck revival.
 - Four wax-sealed pillars reinforcing artisanal integrity: 72-Hour Cold Fermentation, 500°C Beechwood Hearth, San Marzano D.O.P. Volcanic Tomatoes, and 100% Buffalo Fior di Latte.
+
+---
+
+### 13. Strict Role Segregation, Kitchen Display System (KDS), Multi-Device LAN Access & Edible Presentation
+
+**Interviewer:**  
+*In consumer-facing restaurant applications, role segregation and culinary immersion are crucial. Why is it an architectural anti-pattern to show staff/chef login controls or persona switchers on the customer portal, and how did you architect the segregated Kitchen Command & Dispatch Center alongside multi-device network support?*
+
+**Candidate:**  
+This is a critical distinction in real-world product engineering:
+
+#### 1. Total Role Segregation & Zero Attack Surface Leakage
+- **Anti-Pattern**: Exposing "Chef Login", "Admin Portal", or debug persona bars on the customer storefront confuses patrons, dilutes the culinary brand immersion, and invites brute-force credential stuffing against privileged administrative routes.
+- **Production Architecture**:
+  - **Customer Storefront (`/`)**: 100% foodie-focused. Customers only see mouth-watering pizzas, the interactive pizza builder, coupon deals, their personal SliceWallet, saved addresses, and live courier tracking.
+  - **Kitchen Command & Dispatch Center (`/kitchen`)**: Completely segregated full-screen Kitchen Display System (KDS) served at `/kitchen`. Access requires mandatory authentication by accounts with `is_staff: true`.
+  - **Discreet Navigation**: The customer storefront footer includes a subtle, professional link (`👨‍🍳 Kitchen Staff & Dispatch Access ➔`) directing staff to the KDS login terminal.
+
+#### 2. Kitchen Display System (KDS) Feature Architecture
+- **Real-Time Financial & Operational KPIs**: Directly queries `GET /orders/stats` to aggregate total revenue in `₹` INR, queue depth (Pending), active oven load (In-Transit), completed deliveries, and total handled order volume.
+- **Stage Transitions**: Single-click stage progression (`🔥 Start Baking` $\to$ `✅ Mark Delivered` $\to$ `🧾 Print KOT`).
+- **Kitchen Order Ticket (KOT) & Tax Invoice Generation**: Prints standard 80mm thermal receipt format with GST breakdown and special chef notes.
+- **Audio Chime System**: Low-latency web audio chime alerts pizzaiolos instantly when a new pending order lands in the stone oven queue.
+- **10-Second Auto-Sync**: Background auto-polling with manual override and pause controls.
+
+#### 3. "Edible UI" Sensory Design System vs Synthetic AI Colors
+- **The Problem with "AI Colors"**: Generic neon purples, glowing cyan borders, and cold electric blues feel synthetic, artificial, and unappetizing. People do not want to eat glowing electronics.
+- **The Organic Culinary Palette**:
+  - *Deep Wood-Fired Charcoal* (`#0e0a07`, `#17110c`): Evoking cast-iron pans and charred stone-deck ovens.
+  - *Blistered Cornicione Amber & Flame Orange* (`#c2410c`, `#ea580c`, `#f59e0b`): The caramelized hue of 72-hour naturally fermented sourdough.
+  - *Volcanic San Marzano Tomato Red* (`#dc2626`, `#b91c1c`): Deep, rich tomato reduction.
+  - *Molten Buffalo Fior di Latte Cream* (`#fffbeb`, `#fef3c7`): Soft, warm melted cheese pull tones.
+  - *Genovese Basil Leaf Green* (`#16a34a`, `#22c55e`): Fresh herb vibrancy.
+- **Atmospheric Floating Culinary Particles**: Basil leaves (`🌿`, `🍃`), beechwood fire embers (`✨`, `🔥`), and crushed red pepper flakes (`🌶️`) drift with gentle 3D sway and opacity pulsing.
+- **Edible Masterwork Presentation**: Rather than isolating history into a separate museum page, every pizza card across the menu is framed as a culinary masterwork with historical wax seals (e.g. `👑 Anno 1889 • Royal Savoy Decree`), flavor note melodies, FSSAI veg/non-veg dot compliance, and dynamic 3D perspective card tilt.
+
+#### 4. Multi-Device Local Area Network (LAN) Architecture
+- **Host Binding**: Configured `uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)` so any device (mobile, tablet, laptop) connected to the local Wi-Fi network can access the application via the machine's LAN IP (`http://10.99.61.114:8000/` and `http://10.99.61.114:8000/kitchen`).
+- **Relative Path API Invocation**: All JavaScript client operations call relative paths (`/orders/...`, `/auth/...`) rather than hardcoded `localhost:8000`, ensuring zero CORS friction across smartphones, tablets, or remote browsers.
+- **Mobile Sticky Cart Bar**: For mobile viewports ($\le 768\text{px}$), a persistent bottom bar displays item count, order preview, and 1-tap cart drawer access (Domino's/Swiggy/Zomato style) with minimum 44px touch targets.
 
 ---
 
