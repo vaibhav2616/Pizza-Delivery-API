@@ -2285,4 +2285,338 @@ body {
   .relic-main-image { width: 240px; height: 240px; }
 }
 
+/* ==========================================================================
+   Floating Culinary Atmosphere Objects
+   ========================================================================== */
+.culinary-floating-objects {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+
+.floating-obj {
+  position: absolute;
+  font-size: 1.6rem;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+}
+
+@keyframes driftSlow1 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(15px, -20px) rotate(15deg); }
+  50% { transform: translate(-10px, -45px) rotate(-10deg); }
+  75% { transform: translate(20px, -25px) rotate(20deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes driftSlow2 {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(-25px, -30px) rotate(-25deg) scale(1.1); }
+  66% { transform: translate(15px, -15px) rotate(15deg) scale(0.95); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+}
+
+@keyframes emberGlow {
+  0%, 100% { opacity: 0.3; transform: scale(0.8) translateY(0); filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4)); }
+  50% { opacity: 1; transform: scale(1.2) translateY(-25px); filter: drop-shadow(0 0 12px rgba(234, 88, 12, 0.9)); }
+}
+
+.floating-basil-1 {
+  top: 15%;
+  left: 8%;
+  font-size: 2rem;
+  animation: driftSlow1 8s infinite ease-in-out;
+}
+
+.floating-ember-1 {
+  bottom: 25%;
+  left: 20%;
+  font-size: 1.4rem;
+  color: #f59e0b;
+  animation: emberGlow 3.5s infinite ease-in-out;
+}
+
+.floating-flake-1 {
+  top: 30%;
+  right: 12%;
+  font-size: 1.7rem;
+  animation: driftSlow2 9s infinite ease-in-out;
+}
+
+.floating-garlic-1 {
+  bottom: 18%;
+  right: 18%;
+  font-size: 1.8rem;
+  animation: driftSlow1 10s infinite ease-in-out;
+}
+
+.floating-basil-2 {
+  top: 65%;
+  left: 12%;
+  font-size: 1.8rem;
+  animation: driftSlow2 7.5s infinite ease-in-out;
+}
+
+.floating-ember-2 {
+  top: 20%;
+  right: 25%;
+  font-size: 1.5rem;
+  color: #ea580c;
+  animation: emberGlow 4s infinite ease-in-out 1s;
+}
+
+/* Masterwork Relic Badges on Cards */
+.relic-seal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--crust-gold);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  margin-bottom: 0.45rem;
+  width: fit-content;
+  letter-spacing: 0.02em;
+}
+
+.tasting-notes-pill {
+  font-size: 0.76rem;
+  color: #fed7aa;
+  background: rgba(234, 88, 12, 0.08);
+  border-left: 2px solid var(--crust-amber);
+  padding: 0.3rem 0.55rem;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 0.85rem;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Indian FSSAI Standard Veg / Non-Veg Indicator */
+.veg-icon-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
+}
+
+.non-veg-icon-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #dc2626;
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.6);
+}
+
+.veg-indicator-badge {
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(14, 10, 7, 0.9);
+}
+
+/* ==========================================================================
+   Artisanal Pizzeria Footer
+   ========================================================================== */
+.app-footer {
+  background: #100b07;
+  border-top: 2px solid rgba(245, 158, 11, 0.2);
+  padding: 4rem 2rem 2rem;
+  margin-top: 4rem;
+  color: var(--text-muted);
+}
+
+.footer-grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 2.5rem;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.footer-desc {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-subtle);
+}
+
+.fssai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: var(--crust-gold);
+  margin-top: 1rem;
+}
+
+.footer-heading {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+.footer-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.86rem;
+}
+
+.footer-list li strong {
+  color: var(--crust-gold);
+}
+
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.86rem;
+}
+
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--crust-gold);
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  max-width: 1280px;
+  margin: 3rem auto 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.82rem;
+  color: var(--text-subtle);
+}
+
+.footer-staff-link {
+  color: var(--text-subtle);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+.footer-staff-link:hover {
+  color: var(--crust-gold);
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+/* ==========================================================================
+   Sticky Mobile Cart Floating Bar (Domino's / Swiggy / Zomato Pattern)
+   ========================================================================== */
+.mobile-cart-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #c2410c 0%, #b91c1c 100%);
+  color: #fff;
+  padding: 0.85rem 1.25rem;
+  z-index: 990;
+  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6);
+  border-top: 1.5px solid rgba(254, 243, 199, 0.3);
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  animation: slideUpCart 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUpCart {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.mobile-cart-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-cart-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fef08a;
+}
+
+.mobile-cart-total {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1.1;
+  color: #fff;
+}
+
+.mobile-cart-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.5rem 0.9rem;
+  border-radius: 9px;
+}
+
+@media (max-width: 900px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-cart-bar.visible {
+    display: flex;
+  }
+  body.has-mobile-cart {
+    padding-bottom: 75px;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+
 

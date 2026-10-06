@@ -58,9 +58,6 @@
         <button class="nav-btn active" id="nav-menu" onclick="app.showSection('menu')">
           <span>🍕</span> Menu
         </button>
-        <button class="nav-btn" id="nav-gallery" onclick="app.showSection('gallery')">
-          <span>🏛️</span> Mythical Art Gallery
-        </button>
         <button class="nav-btn" id="nav-deals" onclick="app.showSection('deals')">
           <span>🏷️</span> Deals & Coupons
         </button>
@@ -75,9 +72,6 @@
         </button>
         <button class="nav-btn" id="nav-custom" onclick="app.openCustomizerModal()">
           <span>✨</span> Crafter
-        </button>
-        <button class="nav-btn" id="nav-admin" onclick="app.showSection('admin')">
-          <span>👨‍🍳</span> Kitchen Portal
         </button>
       </nav>
 
@@ -115,23 +109,20 @@
   <section class="hero-section" id="hero-banner">
     <div class="hero-content">
       <div class="hero-pill">
-        <span>🔥</span> 500°C Stone-Deck Wood-Fired Perfection
+        <span>🔥</span> 500°C Stone-Deck Beechwood Hearth
       </div>
       <h1 class="hero-title">
-        Crispy Crust. <br>
-        Molten Cheese. <br>
-        <span class="text-gradient">Pure Italian Soul.</span>
+        Blistered Crust. <br>
+        Molten Fior di Latte. <br>
+        <span class="text-gradient">Pure Culinary Art.</span>
       </h1>
       <p class="hero-description">
-        Crafted with 72-hour cold-fermented dough, San Marzano D.O.P. plum marinara, and fresh imported Buffalo mozzarella. Hot to your doorstep in 25 minutes. Free delivery on orders above ₹399!
+        Crafted with 72-hour naturally fermented sourdough, volcanic San Marzano D.O.P. plum marinara, and fresh hand-pulled buffalo mozzarella. Straight from the embers to your doorstep in 25 minutes. Free delivery on orders above ₹399!
       </p>
 
       <div class="hero-cta-group">
-        <button class="btn-primary" onclick="app.showSection('gallery')">
-          <span>🏛️</span> Enter Mythical Art Gallery
-        </button>
-        <button class="btn-secondary" onclick="app.scrollToMenu()">
-          <span>🍕</span> Explore Menu
+        <button class="btn-primary" onclick="app.scrollToMenu()">
+          <span>🍕</span> Explore Masterworks
         </button>
         <button class="btn-secondary" onclick="app.openCustomizerModal()">
           <span>✨</span> Pizza Crafter
@@ -144,7 +135,7 @@
       <div class="hero-stats">
         <div class="stat-item">
           <span class="stat-number">25m</span>
-          <span class="stat-label">Average Delivery Time</span>
+          <span class="stat-label">Doorstep Delivery</span>
         </div>
         <div class="stat-item">
           <span class="stat-number">4.9 ★</span>
@@ -157,10 +148,20 @@
       </div>
     </div>
 
-    <!-- Animated Pizza Visualizer Stage -->
+    <!-- Animated Pizza Visualizer Stage with Dynamic Floating Objects -->
     <div class="hero-stage">
       <div class="oven-glow-halo"></div>
       
+      <!-- Floating Culinary Atmosphere Objects -->
+      <div class="culinary-floating-objects">
+        <span class="floating-obj floating-basil-1" title="Genovese Basil Leaf">🌿</span>
+        <span class="floating-obj floating-ember-1" title="Wood-Fire Spark">✨</span>
+        <span class="floating-obj floating-flake-1" title="Crushed Red Pepper">🌶️</span>
+        <span class="floating-obj floating-garlic-1" title="Roasted Garlic Clove">🧄</span>
+        <span class="floating-obj floating-basil-2" title="Sweet Basil Leaf">🍃</span>
+        <span class="floating-obj floating-ember-2" title="Beechwood Ember">🔥</span>
+      </div>
+
       <div class="pizza-visualizer-container" onclick="app.openCustomizerModal()" title="Click to Craft Your Own Pizza!">
         <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80" alt="Artisanal Pizza" class="pizza-main-art" id="hero-pizza-img">
         
@@ -181,169 +182,13 @@
   </section>
 
   <!-- ==========================================================================
-       Persona Quick Switcher Bar (Instant Interview & Demo Testing)
-       ========================================================================== -->
-  <div class="persona-bar">
-    <div class="persona-bar-inner">
-      <div class="persona-title">
-        <span>⚡</span> <strong>Interactive Demo Persona:</strong>
-      </div>
-      <div class="persona-btns">
-        <button class="persona-pill-btn" onclick="app.quickLogin('johndoe', 'Password123!')">
-          <span>🍕</span> Customer: johndoe (₹500 Wallet + 2 Addresses)
-        </button>
-        <button class="persona-pill-btn" onclick="app.quickLogin('admin', 'Admin@123')">
-          <span>👨‍🍳</span> Kitchen Staff: admin (Live Dispatch & KPIs)
-        </button>
-        <button class="persona-pill-btn" onclick="app.logout()">
-          <span>🚪</span> Guest Mode (Log Out)
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================================================
-       View: Mythical & Historical Pizza Art Gallery ("The Hall of Legends")
-       ========================================================================== -->
-  <section class="gallery-container" id="gallery-section" style="display: none;">
-    <div class="gallery-hero-header">
-      <div class="gallery-pill">
-        <span>📜</span> The Pantheon of Legendary Relics
-      </div>
-      <h1 class="gallery-headline">The Mythical & Historical Pizza Art Gallery</h1>
-      <p class="gallery-subtext">
-        Forged in the sacred volcanic embers of Mount Vesuvius, codified in ancient maritime scrolls, and consecrated by royal European decrees. Journey across three centuries of Neapolitan alchemy.
-      </p>
-
-      <!-- Curator Persona Card -->
-      <div class="curator-card">
-        <div class="curator-avatar">👨‍🍳</div>
-        <div>
-          <div class="curator-quote">
-            "Step across the threshold of the stone deck, traveler. You are not simply beholding food; you are witnessing relics of fire, fermentation, and ancient empires. Partake and taste the legend."
-          </div>
-          <div class="curator-author">— Maestro Don Salvatore, Custodian of the Sacred Hearth</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Active Relic Exhibition Stage -->
-    <div class="exhibition-stage" id="gallery-exhibition-stage">
-      <div class="relic-visualizer-box">
-        <div class="relic-glow-pedestal"></div>
-        <img src="https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=700&q=80" alt="Legendary Pizza Relic" class="relic-main-image" id="stage-relic-image">
-        <div class="relic-era-badge" id="stage-relic-era">
-          <span>📜</span> Royal Naples (Anno 1889)
-        </div>
-      </div>
-
-      <div class="parchment-lore-card">
-        <div class="wax-seal" id="stage-wax-seal">👑</div>
-        <h2 class="relic-legend-title" id="stage-relic-title">1889 Royal Margherita di Savoia</h2>
-        <div class="relic-origin-row" id="stage-relic-meta">
-          <span>👑 Royal Decree of Savoy</span> • <span>Origin: Naples, Italy</span> • <span style="color: var(--basil-leaf);">🟢 Pure Veg</span>
-        </div>
-
-        <div class="relic-story-text" id="stage-relic-story">
-          <span class="drop-cap">F</span>orged in the legendary summer of 1889 by pizzaiolo Raffaele Esposito to honor Queen Margherita of Savoy. Crafted with the sacred Italian tricolor—San Marzano volcanic marinara, milk-white buffalo mozzarella, and fragrant Genovese basil. Ancient scrolls say this pie unified an empire through the art of the hearth.
-        </div>
-
-        <div class="flavor-notes-bar">
-          <span class="flavor-notes-label">✨ Sacred Flavor Profile & Tasting Notes</span>
-          <div class="flavor-notes-text" id="stage-relic-notes">
-            Volcanic Umami, Creamy Mozzarella, Aromatic Sweet Basil
-          </div>
-        </div>
-
-        <div class="relic-cta-group">
-          <div>
-            <span class="price-subtext">Legendary Offering</span>
-            <div class="relic-price-display" id="stage-relic-price">₹299.00</div>
-          </div>
-          <div style="display: flex; gap: 0.6rem;">
-            <button class="btn-secondary" style="padding: 0.65rem 1rem;" id="stage-relic-custom-btn" onclick="app.customizeSelectedRelic()">
-              <span>✨</span> Crafter
-            </button>
-            <button class="btn-primary" style="padding: 0.65rem 1.35rem;" id="stage-relic-summon-btn" onclick="app.summonRelicToCart()">
-              <span>⚔️</span> Summon to Table
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- The Relics Strip (Selector Carousel) -->
-    <div class="relics-strip-container">
-      <div class="relics-strip-header">
-        <h3 class="relics-strip-title">The Seven Sacred Relics of Pizza History</h3>
-        <span style="font-size: 0.85rem; color: var(--text-subtle);">Click any relic to inspect its chronicle</span>
-      </div>
-      <div class="relics-scroll-grid" id="relics-selector-grid">
-        <!-- Rendered via JS -->
-      </div>
-    </div>
-
-    <!-- The Chronicle of Pizza Timeline -->
-    <h3 class="timeline-section-title">The Chronicle of Pizza: Seven Ages of Fire & Dough</h3>
-    <p class="timeline-section-sub">From the volcanic ruins of Pompeii to the modern wood-fired renaissance.</p>
-    <div class="chronicle-timeline">
-      <div class="timeline-node">
-        <div class="timeline-year">19 BC</div>
-        <div class="timeline-title">Virgil's Aeneid: The Sacred Flatbreads</div>
-        <div class="timeline-desc">Trojan hero Aeneas and his warriors fulfill prophecy in Latium by eating the flat wheat cakes upon which their forest fruits were served.</div>
-      </div>
-      <div class="timeline-node">
-        <div class="timeline-year">1734</div>
-        <div class="timeline-title">Port of Naples: Marinara Antiqua</div>
-        <div class="timeline-desc">The oldest officially documented pie. Italian fishermen sustained their dangerous voyages with garlic, oregano, and wild olive oil.</div>
-      </div>
-      <div class="timeline-node">
-        <div class="timeline-year">1889</div>
-        <div class="timeline-title">The Royal Decree of Savoy</div>
-        <div class="timeline-desc">Pizzaiolo Raffaele Esposito bakes the tricolor Margherita for Queen Margherita; pizza rises from peasant street fuel to royal culinary art.</div>
-      </div>
-      <div class="timeline-node">
-        <div class="timeline-year">2026</div>
-        <div class="timeline-title">SliceCraft: 500°C Stone Renaissance</div>
-        <div class="timeline-desc">Reviving 72-hour sourdough cold fermentation, Mount Vesuvius plum marinara, and lightning fast 25-minute live dispatch.</div>
-      </div>
-    </div>
-
-    <!-- The Four Sacred Vows of the Stone Hearth -->
-    <h3 class="timeline-section-title" style="margin-top: 3.5rem;">The Four Sacred Vows of the Stone Deck</h3>
-    <p class="timeline-section-sub">Uncompromising principles observed across every single bake.</p>
-    <div class="vows-grid">
-      <div class="vow-card">
-        <div class="vow-icon">🌾</div>
-        <h4 class="vow-title">72-Hour Cold Fermentation</h4>
-        <p class="vow-desc">Naturally leavened sourdough rested in cave-cool chambers for digestibility and bubbly Neapolitan cornicione.</p>
-      </div>
-      <div class="vow-card">
-        <div class="vow-icon">🔥</div>
-        <h4 class="vow-title">500°C Beechwood Hearth</h4>
-        <p class="vow-desc">Fired strictly with aged beechwood and fruitwood logs, flash-baking pies in 90 seconds for crispy blistering.</p>
-      </div>
-      <div class="vow-card">
-        <div class="vow-icon">🍅</div>
-        <h4 class="vow-title">San Marzano D.O.P.</h4>
-        <p class="vow-desc">Only sweet plum tomatoes grown in the mineral-dense volcanic ash soils beneath Mount Vesuvius.</p>
-      </div>
-      <div class="vow-card">
-        <div class="vow-icon">🥛</div>
-        <h4 class="vow-title">100% Buffalo Fior di Latte</h4>
-        <p class="vow-desc">Freshly spun curd pulled daily with zero artificial starch, giving that legendary artisanal cheese stretch.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       Main View: Artisanal Menu Section
+       Main View: Artisanal Menu Section ("The Culinary Masterworks")
        ========================================================================== -->
   <main class="section-container" id="menu-section">
     <div class="section-header">
       <div>
-        <h2 class="section-headline">Artisanal Menu Creations</h2>
-        <p class="section-subtext">Hand-stretched to order, stone-baked at 500°C wood fire.</p>
+        <h2 class="section-headline">The Grand Hearth Exhibition — Artisanal Masterworks</h2>
+        <p class="section-subtext">Every pie is a framed culinary relic, hand-stretched with 72-hour sourdough and flash-baked at 500°C.</p>
       </div>
 
       <!-- Controls: Category Pills, Pure Veg Toggle, and Search -->
@@ -527,84 +372,6 @@
     <h3 style="font-size: 1.3rem; margin-bottom: 1rem; font-family: var(--font-display);">Your Order History & Invoices</h3>
     <div id="user-orders-list" style="display: flex; flex-direction: column; gap: 1rem;">
       <!-- Populated via JS -->
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       View: Kitchen Staff Admin Portal (Strict RBAC Guarded)
-       ========================================================================== -->
-  <section class="section-container" id="admin-section" style="display: none;">
-    <div class="section-header">
-      <div>
-        <h2 class="section-headline">Kitchen Command & Dispatch Center</h2>
-        <p class="section-subtext">Manage active orders, update baking stages, and monitor revenue in Indian Rupees.</p>
-      </div>
-      <div style="display: flex; gap: 0.75rem;">
-        <button class="btn-secondary" onclick="app.fetchStaffData()">
-          <span>🔄</span> Refresh Board
-        </button>
-      </div>
-    </div>
-
-    <!-- Live KPI Metrics -->
-    <div class="admin-stats-grid">
-      <div class="kpi-card">
-        <div class="kpi-icon-box" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">💰</div>
-        <div>
-          <div class="kpi-val" id="kpi-revenue">₹0.00</div>
-          <div class="kpi-title">Total Revenue</div>
-        </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon-box" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">📦</div>
-        <div>
-          <div class="kpi-val" id="kpi-total-orders">0</div>
-          <div class="kpi-title">Total Orders</div>
-        </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon-box" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">⏳</div>
-        <div>
-          <div class="kpi-val" id="kpi-pending">0</div>
-          <div class="kpi-title">In Queue (Pending)</div>
-        </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon-box" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">🛵</div>
-        <div>
-          <div class="kpi-val" id="kpi-transit">0</div>
-          <div class="kpi-title">In Transit</div>
-        </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon-box" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">✅</div>
-        <div>
-          <div class="kpi-val" id="kpi-delivered">0</div>
-          <div class="kpi-title">Delivered</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Orders Dispatch Table -->
-    <div class="orders-table-wrapper">
-      <table class="orders-table">
-        <thead>
-          <tr>
-            <th>Order #</th>
-            <th>Customer & Contact</th>
-            <th>Type</th>
-            <th>Item & Details</th>
-            <th>Qty</th>
-            <th>Total Amount</th>
-            <th>Payment</th>
-            <th>Current Status</th>
-            <th>Kitchen Actions</th>
-          </tr>
-        </thead>
-        <tbody id="admin-orders-tbody">
-          <!-- Populated via JS -->
-        </tbody>
-      </table>
     </div>
   </section>
 
@@ -983,6 +750,86 @@
           Sign In
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Artisanal Pizzeria Footer (Brand Heritage, Hours, FSSAI & Staff Link)
+       ========================================================================== -->
+  <footer class="app-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-brand">
+          <span style="font-size: 1.8rem;">🍕</span>
+          <span style="font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: #fff;">SliceCraft</span>
+        </div>
+        <p class="footer-desc">
+          An authentic celebration of wood-fired Italian craftsmanship. 72-hour naturally fermented sourdough, volcanic San Marzano D.O.P. plum marinara, and fresh hand-pulled buffalo fior di latte.
+        </p>
+        <div class="fssai-badge">
+          <span>🛡️</span> <strong>FSSAI Lic. No:</strong> 11226334000891
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Stone Hearth Hours</h4>
+        <ul class="footer-list">
+          <li>Monday – Friday: <strong>11:00 AM – 11:30 PM</strong></li>
+          <li>Saturday – Sunday: <strong>11:00 AM – Midnight</strong></li>
+          <li>Wood-Fired Deck: <strong>Stoked at 500°C Daily</strong></li>
+          <li>Average Dispatch: <strong>25 Mins Doorstep</strong></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Culinary Experience</h4>
+        <ul class="footer-links">
+          <li><a href="#" onclick="app.showSection('menu'); return false;">Artisanal Masterworks</a></li>
+          <li><a href="#" onclick="app.openCustomizerModal(); return false;">Interactive Pizza Crafter</a></li>
+          <li><a href="#" onclick="app.showSection('deals'); return false;">Exclusive Promo Deals</a></li>
+          <li><a href="#" onclick="app.showSection('wallet'); return false;">SliceWallet & 5% Cashback</a></li>
+          <li><a href="#" onclick="app.showSection('tracker'); return false;">Live Oven & Courier Tracker</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Concierge & Kitchen</h4>
+        <p class="footer-desc" style="margin-bottom: 0.75rem;">
+          Stone-Deck Oven Kitchen #01<br>
+          100 Feet Road, Indiranagar, Bengaluru, KA 560038
+        </p>
+        <div style="font-size: 0.88rem; color: var(--crust-gold); font-weight: 700;">
+          📞 Hotline: 1800-SLICE-CRAFT
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem;">
+          ✉️ concierge@slicecraftpizzeria.com
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>
+        © 2026 SliceCraft Artisanal Pizzeria. All rights reserved. Handcrafted with passion, fire & dough.
+      </div>
+      <div>
+        <a href="/kitchen" class="footer-staff-link" title="Restricted to Kitchen Staff & Chefs">
+          👨‍🍳 Kitchen Staff & Dispatch Access ➔
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       Sticky Mobile Cart Floating Bar (Swiggy / Zomato / Domino's Style)
+       ========================================================================== -->
+  <div class="mobile-cart-bar" id="mobile-cart-bar" onclick="app.toggleCartDrawer()">
+    <div class="mobile-cart-left">
+      <span class="mobile-cart-badge" id="mobile-cart-count">0 PIZZAS</span>
+      <span class="mobile-cart-total" id="mobile-cart-total">₹0.00</span>
+    </div>
+    <div class="mobile-cart-right">
+      <span>View Feast Cart</span>
+      <span>🛒 ➔</span>
     </div>
   </div>
 

@@ -75,8 +75,6 @@ class SliceCraftApp {
     setInterval(() => {
       if (this.currentView === 'tracker' && this.currentUser) {
         this.refreshOrderHistory(false);
-      } else if (this.currentView === 'admin' && this.currentUser?.is_staff) {
-        this.fetchStaffData(false);
       }
     }, 10000);
   }
@@ -356,7 +354,6 @@ class SliceCraftApp {
   updateAuthHeaderUI() {
     const container = document.getElementById('auth-header-container');
     const walletPill = document.getElementById('header-wallet-pill');
-    const adminNavBtn = document.getElementById('nav-admin');
 
     if (!container) return;
 
@@ -366,8 +363,8 @@ class SliceCraftApp {
           <div class="user-avatar">${this.currentUser.username[0].toUpperCase()}</div>
           <div style="display: flex; flex-direction: column;">
             <span style="font-weight: 700; font-size: 0.85rem; line-height: 1.1;">${this.currentUser.username}</span>
-            <span style="font-size: 0.7rem; color: ${this.currentUser.is_staff ? 'var(--crust-gold)' : 'var(--basil-leaf)'}; font-weight: 700;">
-              ${this.currentUser.is_staff ? '👨‍🍳 Staff Admin' : '🍕 Foodie'}
+            <span style="font-size: 0.7rem; color: var(--basil-leaf); font-weight: 700;">
+              🍕 Foodie Member
             </span>
           </div>
           <button style="background: none; border: none; color: var(--text-subtle); cursor: pointer; margin-left: 0.35rem;" onclick="event.stopPropagation(); app.logout()" title="Log Out">✕</button>
@@ -379,16 +376,11 @@ class SliceCraftApp {
         const amtEl = document.getElementById('header-wallet-amount');
         if (amtEl) amtEl.textContent = `₹${(this.currentUser.wallet_balance || 0).toFixed(2)}`;
       }
-
-      if (adminNavBtn) {
-        adminNavBtn.style.display = this.currentUser.is_staff ? 'flex' : 'none';
-      }
     } else {
       container.innerHTML = `
         <button class="btn-secondary" onclick="app.openAuthModal('login')">Sign In</button>
       `;
       if (walletPill) walletPill.style.display = 'none';
-      if (adminNavBtn) adminNavBtn.style.display = 'none';
     }
   }
 
@@ -396,14 +388,11 @@ class SliceCraftApp {
   // Section Navigation & RBAC Guard
   // ==========================================================================
   showSection(sectionId) {
-    // RBAC Security Check
     if (sectionId === 'admin') {
-      if (!this.currentUser || !this.currentUser.is_staff) {
-        this.showToast('Kitchen Portal is restricted to Kitchen Staff only. Please sign in as admin.', 'error');
-        this.openAuthModal('login');
-        return;
-      }
-    } else if (sectionId === 'wallet' || sectionId === 'addresses') {
+      window.location.href = '/kitchen';
+      return;
+    }
+    if (sectionId === 'wallet' || sectionId === 'addresses') {
       if (!this.currentUser) {
         this.showToast('Please sign in to access your SliceWallet & Saved Addresses.', 'info');
         this.openAuthModal('login');
@@ -413,7 +402,7 @@ class SliceCraftApp {
 
     this.currentView = sectionId;
 
-    const sections = ['menu', 'gallery', 'deals', 'wallet', 'addresses', 'tracker', 'admin'];
+    const sections = ['menu', 'deals', 'wallet', 'addresses', 'tracker'];
     sections.forEach(s => {
       const el = document.getElementById(`${s}-section`);
       const navBtn = document.getElementById(`nav-${s}`);
@@ -430,14 +419,18 @@ class SliceCraftApp {
     }
 
     // Refresh Section Data
-    if (sectionId === 'gallery') {
-      this.renderGallery();
-      this.playLuteArpeggio();
-    } else if (sectionId === 'tracker') {
+    if (sectionId === 'tracker') {
       this.refreshOrderHistory();
-    } else if (sectionId === 'admin') {
-      this.fetchStaffData();
     } else if (sectionId === 'wallet') {
+      this.fetchWallet();
+    } else if (sectionId === 'addresses') {
+      this.fetchAddresses();
+    } else if (sectionId === 'deals') {
+      this.fetchCoupons();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
       this.fetchWallet();
     } else if (sectionId === 'addresses') {
       this.fetchAddresses();
@@ -693,13 +686,14 @@ class SliceCraftApp {
         .join('');
 
       const vegDotClass = pizza.is_veg ? 'veg-icon-dot' : 'non-veg-icon-dot';
+      const sealIcon = { 1889: '👑', 1734: '⚓', 1905: '🌋', 1533: '⚜️', 1950: '🇮🇳', 1920: '⚔️', 1981: '✨' }[pizza.origin_year] || '📜';
 
       return `
         <div class="pizza-card" data-id="${pizza.id}">
           <div class="card-image-box">
             <img src="${pizza.image_url || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80'}" alt="${pizza.name}" class="card-image" loading="lazy">
             ${pizza.badge ? `<div class="card-badge">${pizza.badge}</div>` : ''}
-            <div class="veg-indicator-badge">
+            <div class="veg-indicator-badge" title="${pizza.is_veg ? 'Pure Vegetarian (Green Dot)' : 'Non-Vegetarian (Red Dot)'}">
               <div class="${vegDotClass}"></div>
             </div>
           </div>
@@ -710,9 +704,19 @@ class SliceCraftApp {
               <div class="card-rating">★ ${(pizza.rating || 4.8).toFixed(1)}</div>
             </div>
             
-            ${pizza.origin_year ? `<div style="font-size: 0.72rem; color: var(--crust-gold); font-weight: 800; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem;"><span>📜</span> Anno ${pizza.origin_year} • ${pizza.legend_badge || pizza.era || 'Artisanal Recipe'}</div>` : ''}
+            ${pizza.origin_year ? `
+              <div class="relic-seal-badge">
+                <span>${sealIcon}</span> Anno ${pizza.origin_year} • ${pizza.legend_badge || pizza.era || 'Artisanal Heritage'}
+              </div>
+            ` : ''}
 
             <p class="card-description">${pizza.description || ''}</p>
+
+            ${pizza.flavor_notes ? `
+              <div class="tasting-notes-pill">
+                ✨ <strong>Tasting Notes:</strong> ${pizza.flavor_notes}
+              </div>
+            ` : ''}
             
             <div class="card-ingredients-row">
               ${ingredientsList}
@@ -744,6 +748,27 @@ class SliceCraftApp {
         </div>
       `;
     }).join('');
+
+    // Attach subtle 3D card tilt listeners
+    this.attachCardTiltEffects();
+  }
+
+  attachCardTiltEffects() {
+    const cards = document.querySelectorAll('.pizza-card');
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        const rotateX = (-y / rect.height) * 8;
+        const rotateY = (x / rect.width) * 8;
+        card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-6px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
+      });
+    });
+  }
   }
 
   onCardSizeChange(btn, size, multiplier) {
@@ -961,6 +986,30 @@ class SliceCraftApp {
 
     if (countEl) countEl.textContent = totalCount;
     if (totalEl) totalEl.textContent = `₹${subtotal.toFixed(2)}`;
+
+    this.updateMobileCartBar();
+  }
+
+  updateMobileCartBar() {
+    const totalCount = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+    const subtotal = this.cart.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+
+    const mobileBar = document.getElementById('mobile-cart-bar');
+    const mobileCount = document.getElementById('mobile-cart-count');
+    const mobileTotal = document.getElementById('mobile-cart-total');
+
+    if (mobileBar) {
+      if (totalCount > 0) {
+        mobileBar.classList.add('visible');
+        document.body.classList.add('has-mobile-cart');
+      } else {
+        mobileBar.classList.remove('visible');
+        document.body.classList.remove('has-mobile-cart');
+      }
+    }
+
+    if (mobileCount) mobileCount.textContent = `${totalCount} ${totalCount === 1 ? 'PIZZA' : 'PIZZAS'}`;
+    if (mobileTotal) mobileTotal.textContent = `₹${subtotal.toFixed(2)}`;
   }
 
   renderCart() {
