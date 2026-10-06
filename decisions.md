@@ -18,6 +18,7 @@
 8. [Frontend Single Page Application (SPA) Architecture](#8-frontend-single-page-application-spa-architecture)
 9. [Codebase Restructuring & Backward Compatibility](#9-codebase-restructuring--backward-compatibility)
 10. [Scalability, Production Readiness & Future Roadmap](#10-scalability-production-readiness--future-roadmap)
+11. [Feature Enrichment: Rupee Economy, SliceWallet, Edible UI & Tax Invoicing](#11-feature-enrichment-rupee-economy-slicewallet-edible-ui--tax-invoicing)
 
 ---
 
@@ -526,6 +527,63 @@ flowchart TD
 5. **Observability & Reliability**:
    - Instrument OpenTelemetry with Prometheus and Grafana for latency p99 metrics.
    - Structured JSON logging with Correlation IDs (`X-Request-ID`) traced across all microservices.
+
+---
+
+### 11. Feature Enrichment: Rupee Economy, SliceWallet, Edible UI & Tax Invoicing
+
+**Interviewer:**  
+*Let's talk about the user experience and localized food-tech features. Food delivery platforms in India like Zomato, Swiggy, Dominos, and La Pino'z have very specific user expectations—Rupee pricing, FSSAI veg/non-veg color coding, promo coupons, loyalty wallets, address books, and GST tax invoices. How did you incorporate these while keeping the architecture robust?*
+
+**Candidate:**  
+Great question. Rather than cloning a generic food delivery app, we designed SliceCraft with an appetizing **"Edible UI"** philosophy combined with battle-tested fintech and food-tech architecture:
+
+#### 1. The "Edible UI" Design System & Animated Preloader
+- **Visual Psychology**: We built a custom color palette inspired by artisanal pizza ingredients:
+  - **Rich Crust Gold** (`#f59e0b` / Amber): Evokes warmth, sourdough crust, and appetite.
+  - **Molten Mozzarella Cream** (`#fffbeb` / `#fef3c7`): Soft contrast for readable cards and cheese-pull effects.
+  - **San Marzano Tomato Red** (`#dc2626` / `#b91c1c`): Directs call-to-action attention, oven heat, and urgency.
+  - **Fresh Genovese Basil Green** (`#16a34a` / `#22c55e`): Signifies organic ingredients, fresh toppings, and FSSAI veg certification.
+- **Stone-Deck Oven Preloader**: When the application loads, users see a custom CSS/JS wood-fired oven preheating from 0°C to 500°C with dynamic stage text ("Rolling 72-hour sourdough...", "Stoking beechwood embers..."), guaranteeing an engaging experience while assets initialize.
+- **Zero-Asset Web Audio Synthesizer**: To avoid heavy audio file assets or network latency, we synthesized custom audio chimes directly via the browser's native `AudioContext` (a two-tone melodic chime for order placement, a crisp pop for button taps, and a coin jingle for wallet top-ups), fully toggleable via a mute/unmute control.
+
+#### 2. Rupee (INR ₹) Economy & Mathematical Formulation
+All prices, database records, and schema validations use Indian Rupees:
+- **Size Multiplier**:
+  $$\text{Unit Price} = \text{round}(\text{Base Price} \times M_{\text{size}}, 2)$$
+  where $M_{\text{SMALL}} = 0.85$, $M_{\text{MEDIUM}} = 1.00$, $M_{\text{LARGE}} = 1.35$, and $M_{\text{XL}} = 1.65$.
+- **Subtotal & Promo Discount**:
+  $$\text{Subtotal} = \sum (\text{Unit Price} \times \text{Quantity})$$
+  $$\text{Discounted Subtotal} = \max(0, \text{Subtotal} - \text{Discount})$$
+- **Delivery Fee Waiver**:
+  $$\text{Delivery Fee} = \begin{cases} ₹0.00 & \text{if Order Type} = \text{TAKEAWAY} \lor \text{Subtotal} \ge ₹399.00 \\ ₹49.00 & \text{otherwise} \end{cases}$$
+- **GST & Grand Total**:
+  $$\text{GST (5\%)} = \text{round}(\text{Discounted Subtotal} \times 0.05, 2)$$
+  $$\text{Grand Total} = \text{Discounted Subtotal} + \text{Delivery Fee} + \text{GST}$$
+
+#### 3. SliceWallet & Loyalty Ledger
+- **Welcome Bonus**: Every newly registered customer receives a ₹500 welcome bonus logged into an append-only `wallet_transactions` ledger.
+- **5% Delivery Cashback**: Upon marking an order as `DELIVERED`, the system automatically calculates 5% cashback on the subtotal and credits it to the user's SliceWallet with an audit trail.
+- **Atomic Refunds on Cancellation**: If an order paid with `WALLET` is cancelled while `PENDING`, the database transaction immediately refunds the amount back to the user's balance and records a `REFUND` transaction.
+
+#### 4. Promo Coupons Engine
+- Supported active promo codes:
+  - `FIRSTBITE`: Flat ₹150 off on minimum order of ₹399.
+  - `SLICE100`: Flat ₹100 off on minimum order of ₹499.
+  - `CHEESELOVER`: 20% off up to a maximum of ₹120.
+  - `FREEDEL`: Free delivery fee waiver.
+- Real-time validation endpoint `/orders/coupons/validate` verifies minimum order constraints before order submission.
+
+#### 5. Saved Address Book & Indian Form Validations
+- Dedicated `addresses` table linked via foreign key to `user.id`.
+- Supports `tag` categorization (Home, Work, Other), landmark, city, state, and strict 6-digit Indian PIN code validation (`^\d{6}$`).
+- Phone number input validated against 10-digit Indian mobile formats (`^[6-9]\d{9}$`).
+
+#### 6. FSSAI & GST Compliant Tax Invoice
+- Modal view and dedicated printable layout (`@media print`) rendering official legal tax receipts:
+  - Pizzeria legal entity name, GSTIN (`29AABCU9603R1ZM`), and FSSAI License Number (`11224333000554`).
+  - Itemized descriptions, rates, quantities, and GST split (2.5% CGST + 2.5% SGST = 5% Total GST).
+  - Customer information, order type, payment method, delivery partner details, and print trigger.
 
 ---
 
