@@ -6,22 +6,25 @@ def utc_now():
     return datetime.now(timezone.utc)
 
 class PizzaMenu(Base):
-    """Catalog of artisanal pizzas available for ordering."""
+    """Catalog of artisanal pizzas, garlic breads, sides, and desserts."""
     __tablename__ = 'pizza_menu'
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, nullable=False, index=True)
     description = Column(Text, nullable=False)
-    category = Column(String(50), default="Classic", index=True) # Classic, Specialty, Vegetarian, Meat
-    base_price = Column(Float, default=12.99, nullable=False)
-    badge = Column(String(50), nullable=True) # Bestseller, Spicy 🔥, Chef Choice, Vegetarian 🌿
+    category = Column(String(50), default="Classic", index=True) # Classic, Meat, Vegetarian, Specialty, Sides & Beverages
+    base_price = Column(Float, default=299.0, nullable=False)    # Price in ₹ (Rupees) for Regular / Medium
+    badge = Column(String(50), nullable=True)                   # Bestseller, Chef Choice, Spicy 🔥, Desi Fusion
     image_url = Column(Text, nullable=True)
     ingredients = Column(Text, nullable=True)
+    is_veg = Column(Boolean, default=True, index=True)          # Green Veg Dot vs Red Non-Veg Dot
+    rating = Column(Float, default=4.8)
+    preparation_time = Column(Integer, default=20)              # In minutes
     is_available = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=utc_now)
 
     def __repr__(self):
-        return f"<PizzaMenu {self.name}>"
+        return f"<PizzaMenu {self.name} (₹{self.base_price})>"
 
     def to_dict(self):
         return {
@@ -33,5 +36,8 @@ class PizzaMenu(Base):
             "badge": self.badge or "",
             "image_url": self.image_url or "",
             "ingredients": self.ingredients or "",
+            "is_veg": bool(self.is_veg),
+            "rating": round(float(self.rating or 4.8), 1),
+            "preparation_time": int(self.preparation_time or 20),
             "is_available": bool(self.is_available)
         }
