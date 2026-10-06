@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vesuvio Hearth — Product Display Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 2400px;
+      height: 1500px;
+      background: #090b10;
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: #ffffff;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 50px;
+    }
+
+    /* Ambient Studio Background Lighting */
+    .studio-glow-top {
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1400px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(220, 38, 38, 0.22) 0%, rgba(245, 158, 11, 0.12) 40%, transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .studio-glow-bottom-left {
+      position: absolute;
+      bottom: -150px;
+      left: 100px;
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(220, 38, 38, 0.18) 0%, transparent 65%);
+      filter: blur(90px);
+      pointer-events: none;
+    }
+
+    .studio-glow-bottom-right {
+      position: absolute;
+      bottom: -150px;
+      right: 100px;
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 65%);
+      filter: blur(90px);
+      pointer-events: none;
+    }
+
+    /* Showcase Header Branding */
+    .showcase-header {
+      text-align: center;
+      z-index: 10;
+      margin-bottom: 35px;
+    }
+
+    .showcase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(220, 38, 38, 0.18);
+      border: 1px solid rgba(220, 38, 38, 0.4);
+      padding: 8px 22px;
+      border-radius: 40px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #fca5a5;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 14px;
+    }
+
+    .showcase-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+
+    .showcase-title span {
+      background: linear-gradient(135deg, #f87171 0%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .showcase-subtitle {
+      font-size: 20px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    /* Cascading Stack Stage */
+    .stage-container {
+      position: relative;
+      width: 2200px;
+      height: 1100px;
+      perspective: 2000px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 5;
+    }
+
+    /* 1. Central MacBook Pro Display (Desktop View) */
+    .macbook-chassis {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1480px;
+      height: 940px;
+      background: #1e2330;
+      border-radius: 28px;
+      padding: 16px 16px 24px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.1);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .macbook-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 14px 12px;
+    }
+
+    .macbook-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .macbook-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .macbook-urlbar {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 4px 120px;
+      font-size: 13px;
+      color: #cbd5e1;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .macbook-screen {
+      width: 100%;
+      height: 870px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #000;
+      position: relative;
+    }
+
+    .macbook-screen img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+    }
+
+    /* 2. Left Phone Mockup (Cascading Foreground Left) */
+    .phone-mockup-left {
+      position: absolute;
+      left: 120px;
+      bottom: 20px;
+      width: 440px;
+      height: 890px;
+      background: #181a20;
+      border-radius: 54px;
+      padding: 14px;
+      box-shadow: 0 35px 80px rgba(0, 0, 0, 0.85), 0 10px 30px rgba(220, 38, 38, 0.25), 0 0 0 3px #374151;
+      z-index: 25;
+      transform: rotate(-5deg) translateY(-20px);
+      transition: transform 0.3s ease;
+    }
+
+    .phone-island {
+      position: absolute;
+      top: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 28px;
+      background: #000000;
+      border-radius: 20px;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 12px;
+    }
+
+    .camera-lens {
+      width: 10px;
+      height: 10px;
+      background: #111827;
+      border-radius: 50%;
+      border: 1px solid #1f2937;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 42px;
+      overflow: hidden;
+      background: #11141b;
+      position: relative;
+    }
+
+    .phone-screen img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+    }
+
+    /* 3. Right Phone Mockup (Cascading Foreground Right) */
+    .phone-mockup-right {
+      position: absolute;
+      right: 120px;
+      bottom: 20px;
+      width: 440px;
+      height: 890px;
+      background: #181a20;
+      border-radius: 54px;
+      padding: 14px;
+      box-shadow: 0 35px 80px rgba(0, 0, 0, 0.85), 0 10px 30px rgba(245, 158, 11, 0.25), 0 0 0 3px #374151;
+      z-index: 25;
+      transform: rotate(5deg) translateY(-20px);
+      transition: transform 0.3s ease;
+    }
+
+    .phone-mockup-right .phone-screen img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: bottom;
+      display: block;
+    }
+
+    /* Floating Feature Relic Pills */
+    .feature-pill {
+      position: absolute;
+      z-index: 40;
+      background: rgba(18, 22, 30, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(220, 38, 38, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pill-1 {
+      top: 180px;
+      left: 40px;
+      border-color: rgba(220, 38, 38, 0.4);
+    }
+
+    .pill-2 {
+      top: 140px;
+      right: 70px;
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .pill-3 {
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(234, 88, 12, 0.95));
+      border: 2px solid #ef4444;
+      font-size: 18px;
+      padding: 14px 34px;
+      box-shadow: 0 20px 50px rgba(220, 38, 38, 0.5);
+    }
+
+    .pill-icon {
+      font-size: 24px;
+    }
+
+    /* Bottom Quality Seals */
+    .quality-bar {
+      position: absolute;
+      bottom: 25px;
+      display: flex;
+      gap: 35px;
+      z-index: 30;
+      font-size: 15px;
+      color: #94a3b8;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .quality-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .quality-item strong {
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Studio Background Ambient Lighting -->
+  <div class="studio-glow-top"></div>
+  <div class="studio-glow-bottom-left"></div>
+  <div class="studio-glow-bottom-right"></div>
+
+  <!-- Showcase Header -->
+  <header class="showcase-header">
+    <div class="showcase-badge">
+      <span>🍕</span> Artisanal Neapolitan Pizzeria Ecosystem • Production Release
+    </div>
+    <h1 class="showcase-title">
+      Vesuvio Hearth — <span>The Product Experience</span>
+    </h1>
+    <p class="showcase-subtitle">
+      500°C Beechwood Stone Oven • ₹ INR Multi-Role E-Commerce Platform • Zero Beef/Buff Authentic Recipe
+    </p>
+  </header>
+
+  <!-- Cascading Stack Showcase Stage -->
+  <div class="stage-container">
+
+    <!-- Floating Feature Relic Pills -->
+    <div class="feature-pill pill-1">
+      <span class="pill-icon">📱</span>
+      <span>Mobile-First PWA • 5-Icon Docked Bottom Nav</span>
+    </div>
+
+    <div class="feature-pill pill-2">
+      <span class="pill-icon">🇮🇳</span>
+      <span>100% Beef & Buff Free • FSSAI Veg/Non-Veg Badges</span>
+    </div>
+
+    <div class="feature-pill pill-3">
+      <span class="pill-icon">🔥</span>
+      <span>Ultra-Crisp 72h Cold-Fermented Sourdough Crust • Dispatched in 25 Min</span>
+    </div>
+
+    <!-- 1. Central MacBook Display (Desktop View) -->
+    <div class="macbook-chassis">
+      <div class="macbook-topbar">
+        <div class="macbook-dots">
+          <div class="macbook-dot dot-red"></div>
+          <div class="macbook-dot dot-yellow"></div>
+          <div class="macbook-dot dot-green"></div>
+        </div>
+        <div class="macbook-urlbar">
+          <span>🔒</span> https://vesuvio-hearth.internal/menu • 500°C Live Dispatch Deck
+        </div>
+        <div style="width: 50px;"></div>
+      </div>
+      <div class="macbook-screen">
+        <img src="/static/pc_product_hero.png" alt="Desktop Storefront Hero">
+      </div>
+    </div>
+
+    <!-- 2. Left Phone Mockup (Mobile Storefront Hero View) -->
+    <div class="phone-mockup-left">
+      <div class="phone-island">
+        <div class="camera-lens"></div>
+      </div>
+      <div class="phone-screen">
+        <img src="/static/phone_product_hero.png" alt="Mobile Hero & Bottom Nav">
+      </div>
+    </div>
+
+    <!-- 3. Right Phone Mockup (Mobile Menu & Delicacy Cards View) -->
+    <div class="phone-mockup-right">
+      <div class="phone-island">
+        <div class="camera-lens"></div>
+      </div>
+      <div class="phone-screen">
+        <img src="/static/phone_product_menu.png" alt="Mobile Menu & Masterwork Cards">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Quality Assurance Footer Bar -->
+  <div class="quality-bar">
+    <div class="quality-item"><span>⚡</span> Tests: <strong>13/13 Passing</strong></div>
+    <div class="quality-item"><span>👛</span> Currency: <strong>₹ Indian Rupee (INR)</strong></div>
+    <div class="quality-item"><span>🛵</span> Dispatch: <strong>25 Min Live Tracker</strong></div>
+    <div class="quality-item"><span>✨</span> Crafter: <strong>Custom Neapolitan Dough Engine</strong></div>
+  </div>
+
+</body>
+</html>
