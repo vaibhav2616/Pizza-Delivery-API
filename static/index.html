@@ -3,17 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SliceCraft — Artisanal Wood-Fired Pizza & Kitchen Dispatch</title>
+  <title>SliceCraft — Artisanal Wood-Fired Pizzeria & Live Dispatch</title>
   
   <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="/static/css/styles.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍕</text></svg>">
 </head>
 <body>
+
+  <!-- ==========================================================================
+       Stone Oven Preloader (Interactive Heat-Up Animation)
+       ========================================================================== -->
+  <div id="app-preloader">
+    <div class="preloader-oven">
+      <div class="preloader-glow"></div>
+      <div class="preloader-pizza">🍕</div>
+    </div>
+    <div class="preloader-text">SliceCraft Wood-Fired Oven</div>
+    <div class="preloader-subtext" id="preloader-status">Preheating stone deck to 500°C...</div>
+    <div class="preloader-bar-bg">
+      <div class="preloader-bar-fill" id="preloader-bar"></div>
+    </div>
+  </div>
 
   <!-- ==========================================================================
        Header & Navigation Bar
@@ -28,15 +43,35 @@
         </div>
       </a>
 
+      <!-- Order Mode Toggle (Delivery vs Takeaway) -->
+      <div class="order-mode-toggle" id="order-mode-toggle" title="Switch Between Home Delivery & Takeaway Pickup">
+        <button class="mode-btn active" id="mode-delivery-btn" onclick="app.setOrderMode('DELIVERY')">
+          <span>🛵</span> Delivery
+        </button>
+        <button class="mode-btn" id="mode-takeaway-btn" onclick="app.setOrderMode('TAKEAWAY')">
+          <span>🛍️</span> Takeaway
+        </button>
+      </div>
+
+      <!-- Navigation Tabs -->
       <nav class="nav-links">
         <button class="nav-btn active" id="nav-menu" onclick="app.showSection('menu')">
-          <span>🍕</span> Artisanal Menu
+          <span>🍕</span> Menu
+        </button>
+        <button class="nav-btn" id="nav-deals" onclick="app.showSection('deals')">
+          <span>🏷️</span> Deals & Coupons
+        </button>
+        <button class="nav-btn" id="nav-wallet" onclick="app.showSection('wallet')">
+          <span>👛</span> SliceWallet
+        </button>
+        <button class="nav-btn" id="nav-addresses" onclick="app.showSection('addresses')">
+          <span>📍</span> Addresses
         </button>
         <button class="nav-btn" id="nav-tracker" onclick="app.showSection('tracker')">
-          <span>🛵</span> Live Tracker
+          <span>🛵</span> Tracker
         </button>
         <button class="nav-btn" id="nav-custom" onclick="app.openCustomizerModal()">
-          <span>✨</span> Pizza Crafter
+          <span>✨</span> Crafter
         </button>
         <button class="nav-btn" id="nav-admin" onclick="app.showSection('admin')">
           <span>👨‍🍳</span> Kitchen Portal
@@ -44,6 +79,18 @@
       </nav>
 
       <div class="header-actions">
+        <!-- Audio Feedback Mute / Unmute Toggle -->
+        <button class="sound-toggle-btn" id="sound-toggle-btn" onclick="app.toggleSound()" title="Toggle Web Audio Chimes">
+          🔊
+        </button>
+
+        <!-- Quick SliceWallet Pill (Appears when logged in) -->
+        <div id="header-wallet-pill" style="display: none;">
+          <button class="btn-secondary" style="padding: 0.45rem 0.8rem; font-size: 0.84rem; border-color: var(--crust-gold);" onclick="app.showSection('wallet')">
+            <span>👛</span> <strong id="header-wallet-amount">₹0.00</strong>
+          </button>
+        </div>
+
         <!-- User Status Badge / Auth Button -->
         <div id="auth-header-container">
           <button class="btn-secondary" onclick="app.openAuthModal('login')">Sign In</button>
@@ -53,7 +100,7 @@
         <button class="cart-btn-indicator" onclick="app.toggleCartDrawer()">
           <span>🛒</span>
           <span class="cart-badge" id="header-cart-count">0</span>
-          <span id="header-cart-total">$0.00</span>
+          <span id="header-cart-total">₹0.00</span>
         </button>
       </div>
     </div>
@@ -73,18 +120,18 @@
         <span class="text-gradient">Pure Italian Soul.</span>
       </h1>
       <p class="hero-description">
-        Crafted with 72-hour cold-fermented dough, San Marzano D.O.P. plum marinara, and fresh imported Buffalo mozzarella. Hot to your doorstep in 25 minutes.
+        Crafted with 72-hour cold-fermented dough, San Marzano D.O.P. plum marinara, and fresh imported Buffalo mozzarella. Hot to your doorstep in 25 minutes. Free delivery on orders above ₹399!
       </p>
 
       <div class="hero-cta-group">
         <button class="btn-primary" onclick="app.scrollToMenu()">
-          <span>🍕</span> Explore Menu
+          <span>🍕</span> Explore Artisanal Menu
         </button>
         <button class="btn-secondary" onclick="app.openCustomizerModal()">
-          <span>🛠️</span> Craft Custom Pizza
+          <span>✨</span> Craft Custom Pizza
         </button>
-        <button class="btn-secondary" onclick="app.showSection('tracker')">
-          <span>🛵</span> Track My Order
+        <button class="btn-secondary" onclick="app.showSection('deals')">
+          <span>🏷️</span> View Deals & Offers
         </button>
       </div>
 
@@ -95,11 +142,11 @@
         </div>
         <div class="stat-item">
           <span class="stat-number">4.9 ★</span>
-          <span class="stat-label">12,500+ Foodies</span>
+          <span class="stat-label">15,000+ Foodies</span>
         </div>
         <div class="stat-item">
-          <span class="stat-number">72h</span>
-          <span class="stat-label">Dough Fermentation</span>
+          <span class="stat-number">₹399</span>
+          <span class="stat-label">Free Delivery Threshold</span>
         </div>
       </div>
     </div>
@@ -137,13 +184,13 @@
       </div>
       <div class="persona-btns">
         <button class="persona-pill-btn" onclick="app.quickLogin('johndoe', 'Password123!')">
-          <span>🍕</span> Login as Customer (johndoe)
+          <span>🍕</span> Customer: johndoe (₹500 Wallet + 2 Addresses)
         </button>
         <button class="persona-pill-btn" onclick="app.quickLogin('admin', 'Admin@123')">
-          <span>👨‍🍳</span> Login as Kitchen Staff (admin)
+          <span>👨‍🍳</span> Kitchen Staff: admin (Live Dispatch & KPIs)
         </button>
         <button class="persona-pill-btn" onclick="app.logout()">
-          <span>🚪</span> Log Out (Guest Mode)
+          <span>🚪</span> Guest Mode (Log Out)
         </button>
       </div>
     </div>
@@ -155,20 +202,30 @@
   <main class="section-container" id="menu-section">
     <div class="section-header">
       <div>
-        <h2 class="section-headline">Our Artisanal Creations</h2>
-        <p class="section-subtext">Hand-stretched to order, baked on stone at 900°F.</p>
+        <h2 class="section-headline">Artisanal Menu Creations</h2>
+        <p class="section-subtext">Hand-stretched to order, stone-baked at 500°C wood fire.</p>
       </div>
 
-      <!-- Category Filter Pills & Search -->
-      <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-        <div class="menu-filter-bar" id="category-filter-bar">
-          <button class="filter-pill active" onclick="app.filterCategory('all')">All Pizzas</button>
-          <button class="filter-pill" onclick="app.filterCategory('Classic')">Classic</button>
-          <button class="filter-pill" onclick="app.filterCategory('Meat')">Meat Lovers</button>
-          <button class="filter-pill" onclick="app.filterCategory('Vegetarian')">Vegetarian</button>
-          <button class="filter-pill" onclick="app.filterCategory('Specialty')">Specialty</button>
+      <!-- Controls: Category Pills, Pure Veg Toggle, and Search -->
+      <div class="filter-controls-bar">
+        <!-- Pure Veg Toggle -->
+        <div class="veg-filter-switch" id="veg-only-switch" onclick="app.toggleVegFilter()" title="Filter Pure Vegetarian Options">
+          <div class="veg-icon-dot"></div>
+          <span>Pure Veg</span>
         </div>
 
+        <!-- Category Filter Bar -->
+        <div class="menu-filter-bar" id="category-filter-bar">
+          <button class="filter-pill active" onclick="app.filterCategory('all')">All Delicacies</button>
+          <button class="filter-pill" onclick="app.filterCategory('Classic')">Classic</button>
+          <button class="filter-pill" onclick="app.filterCategory('Vegetarian')">Vegetarian</button>
+          <button class="filter-pill" onclick="app.filterCategory('Meat')">Meat Lovers</button>
+          <button class="filter-pill" onclick="app.filterCategory('Specialty')">Specialty</button>
+          <button class="filter-pill" onclick="app.filterCategory('Sides')">Sides & Dips</button>
+          <button class="filter-pill" onclick="app.filterCategory('Dessert')">Desserts</button>
+        </div>
+
+        <!-- Search Input -->
         <div class="search-input-wrapper">
           <span class="search-icon">🔍</span>
           <input type="text" class="search-input" id="menu-search-input" placeholder="Search flavor, ingredient..." oninput="app.handleSearch(this.value)">
@@ -183,13 +240,100 @@
   </main>
 
   <!-- ==========================================================================
+       View: Deals & Coupons Hub
+       ========================================================================== -->
+  <section class="section-container" id="deals-section" style="display: none;">
+    <div class="section-header">
+      <div>
+        <h2 class="section-headline">Deals, Offers & Secret Promo Codes</h2>
+        <p class="section-subtext">Apply authentic promo codes to claim instant Rupee discounts and free delivery.</p>
+      </div>
+      <button class="btn-secondary" onclick="app.fetchCoupons()">
+        <span>🔄</span> Refresh Coupons
+      </button>
+    </div>
+
+    <div class="deals-grid" id="deals-grid-container">
+      <!-- Injected via JavaScript -->
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       View: SliceWallet & Loyalty Points
+       ========================================================================== -->
+  <section class="section-container" id="wallet-section" style="display: none;">
+    <div class="section-header">
+      <div>
+        <h2 class="section-headline">SliceWallet & Artisan Loyalty</h2>
+        <p class="section-subtext">Enjoy 1-click instant checkout, ₹500 welcome bonus, and 5% cashback on every delivery.</p>
+      </div>
+      <button class="btn-primary" onclick="app.openWalletTopupModal()">
+        <span>➕</span> Top-Up SliceWallet
+      </button>
+    </div>
+
+    <!-- Hero Wallet Balance Banner -->
+    <div class="wallet-balance-card">
+      <div>
+        <span style="font-size: 0.85rem; color: var(--crust-gold); font-weight: 700; text-transform: uppercase;">SliceWallet Available Balance</span>
+        <div style="font-family: var(--font-display); font-size: 2.8rem; font-weight: 900; color: #fff;" id="wallet-display-balance">₹0.00</div>
+        <div style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.35rem;">
+          💡 <strong>Artisan Perks:</strong> Earn 5% instant cashback automatically added back to SliceWallet on delivered orders!
+        </div>
+      </div>
+      <button class="btn-primary" style="padding: 0.75rem 1.5rem; font-size: 1rem;" onclick="app.openWalletTopupModal()">
+        <span>💳</span> Add Money
+      </button>
+    </div>
+
+    <!-- Wallet Transaction History -->
+    <h3 style="font-family: var(--font-display); font-size: 1.3rem; margin-bottom: 0.75rem;">Transaction Ledger & Audit Trail</h3>
+    <div class="orders-table-wrapper">
+      <table class="wallet-tx-table">
+        <thead>
+          <tr>
+            <th>Tx ID</th>
+            <th>Date & Time</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Balance After</th>
+          </tr>
+        </thead>
+        <tbody id="wallet-tx-tbody">
+          <!-- Populated via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       View: Saved Delivery Addresses (Address Book)
+       ========================================================================== -->
+  <section class="section-container" id="addresses-section" style="display: none;">
+    <div class="section-header">
+      <div>
+        <h2 class="section-headline">Saved Delivery Addresses</h2>
+        <p class="section-subtext">Manage your Home, Work, and favorite hangout spots for 1-tap fast checkout.</p>
+      </div>
+      <button class="btn-primary" onclick="app.openAddressModal()">
+        <span>➕</span> Add New Address
+      </button>
+    </div>
+
+    <div class="address-grid" id="addresses-grid-container">
+      <!-- Populated via JavaScript -->
+    </div>
+  </section>
+
+  <!-- ==========================================================================
        View: Live Order Tracker
        ========================================================================== -->
   <section class="section-container" id="tracker-section" style="display: none;">
     <div class="section-header">
       <div>
         <h2 class="section-headline">Real-Time Kitchen & Courier Tracker</h2>
-        <p class="section-subtext">Follow your pizza from the rolling pin to your front door.</p>
+        <p class="section-subtext">Follow your pizza from the rolling pin to your doorstep.</p>
       </div>
       <button class="btn-secondary" onclick="app.refreshOrderHistory()">
         <span>🔄</span> Refresh Status
@@ -203,9 +347,15 @@
           <span style="font-size: 0.85rem; color: var(--text-subtle); text-transform: uppercase; font-weight: 700;">Live Dispatch Monitor</span>
           <h3 style="font-size: 1.45rem; font-weight: 800;" id="tracker-order-title">No Active Order Selected</h3>
           <p style="font-size: 0.9rem; color: var(--text-muted);" id="tracker-order-meta">Select an order from history or place a new one.</p>
+          <div id="tracker-courier-info" style="font-size: 0.84rem; color: var(--crust-gold); margin-top: 0.35rem; display: none;"></div>
         </div>
-        <div id="tracker-order-status-badge">
-          <span class="status-badge pending">Awaiting Selection</span>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button class="btn-secondary" id="tracker-invoice-btn" style="display: none;" onclick="app.openInvoiceModal(app.activeOrder?.id)">
+            <span>🧾</span> View Tax Invoice
+          </button>
+          <div id="tracker-order-status-badge">
+            <span class="status-badge pending">Awaiting Selection</span>
+          </div>
         </div>
       </div>
 
@@ -234,20 +384,20 @@
     </div>
 
     <!-- Customer Order History List -->
-    <h3 style="font-size: 1.3rem; margin-bottom: 1rem; font-family: var(--font-display);">Order History & Receipts</h3>
+    <h3 style="font-size: 1.3rem; margin-bottom: 1rem; font-family: var(--font-display);">Your Order History & Invoices</h3>
     <div id="user-orders-list" style="display: flex; flex-direction: column; gap: 1rem;">
       <!-- Populated via JS -->
     </div>
   </section>
 
   <!-- ==========================================================================
-       View: Kitchen Staff Admin Portal
+       View: Kitchen Staff Admin Portal (Strict RBAC Guarded)
        ========================================================================== -->
   <section class="section-container" id="admin-section" style="display: none;">
     <div class="section-header">
       <div>
         <h2 class="section-headline">Kitchen Command & Dispatch Center</h2>
-        <p class="section-subtext">Manage active orders, update baking stages, and monitor revenue.</p>
+        <p class="section-subtext">Manage active orders, update baking stages, and monitor revenue in Indian Rupees.</p>
       </div>
       <div style="display: flex; gap: 0.75rem;">
         <button class="btn-secondary" onclick="app.fetchStaffData()">
@@ -261,7 +411,7 @@
       <div class="kpi-card">
         <div class="kpi-icon-box" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">💰</div>
         <div>
-          <div class="kpi-val" id="kpi-revenue">$0.00</div>
+          <div class="kpi-val" id="kpi-revenue">₹0.00</div>
           <div class="kpi-title">Total Revenue</div>
         </div>
       </div>
@@ -302,9 +452,11 @@
           <tr>
             <th>Order #</th>
             <th>Customer & Contact</th>
-            <th>Pizza & Size</th>
+            <th>Type</th>
+            <th>Item & Details</th>
             <th>Qty</th>
-            <th>Total Price</th>
+            <th>Total Amount</th>
+            <th>Payment</th>
             <th>Current Status</th>
             <th>Kitchen Actions</th>
           </tr>
@@ -329,32 +481,138 @@
         <button class="modal-close-btn" onclick="app.toggleCartDrawer()">✕</button>
       </div>
 
+      <!-- Free Delivery Progress Bar -->
+      <div style="padding: 1rem 1.5rem 0;">
+        <div class="free-delivery-meter" id="cart-delivery-meter">
+          <div class="free-delivery-text">
+            <span id="free-delivery-text">Add ₹399.00 for FREE Delivery</span>
+            <span id="free-delivery-percent">0%</span>
+          </div>
+          <div class="free-delivery-track">
+            <div class="free-delivery-fill" id="free-delivery-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="cart-items-list" id="cart-items-container">
         <!-- Rendered via JS -->
       </div>
 
       <div class="cart-footer">
+        <!-- Live Coupon Input Box -->
+        <div class="cart-coupon-box">
+          <input type="text" class="coupon-input" id="cart-coupon-input" placeholder="PROMO CODE (e.g. FIRSTBITE)">
+          <button class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="app.applyCouponFromCart()">
+            Apply
+          </button>
+        </div>
+        <div id="applied-coupon-pill" style="display: none; margin-bottom: 0.75rem; background: rgba(34, 197, 94, 0.12); border: 1px solid var(--basil-green); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.82rem; color: #86efac; justify-content: space-between; align-items: center;">
+          <span>🎉 <strong id="applied-coupon-name">CODE</strong> applied!</span>
+          <button style="background: none; border: none; color: #f87171; cursor: pointer; font-weight: 700;" onclick="app.removeCoupon()">Remove</button>
+        </div>
+
         <div class="cart-summary-row">
-          <span>Subtotal</span>
-          <span id="cart-subtotal">$0.00</span>
+          <span>Item Subtotal</span>
+          <span id="cart-subtotal">₹0.00</span>
+        </div>
+        <div class="cart-summary-row" id="cart-discount-row" style="display: none; color: var(--basil-leaf);">
+          <span>Promo Discount</span>
+          <span id="cart-discount">−₹0.00</span>
         </div>
         <div class="cart-summary-row">
-          <span>Delivery Fee (Free over $25)</span>
-          <span id="cart-delivery-fee">$0.00</span>
+          <span>Delivery Fee (<span id="cart-delivery-label">Free over ₹399</span>)</span>
+          <span id="cart-delivery-fee">₹0.00</span>
         </div>
         <div class="cart-summary-row">
-          <span>Sales Tax (8%)</span>
-          <span id="cart-tax">$0.00</span>
+          <span>GST / Taxes (5%)</span>
+          <span id="cart-tax">₹0.00</span>
         </div>
         <div class="cart-summary-row total-row">
           <span>Grand Total</span>
-          <span id="cart-grand-total" style="color: var(--gold-500);">$0.00</span>
+          <span id="cart-grand-total" style="color: var(--crust-gold);">₹0.00</span>
         </div>
 
         <button class="btn-primary" style="width: 100%; margin-top: 1.25rem; padding: 0.85rem;" onclick="app.openCheckoutModal()">
-          <span>💳</span> Proceed to Checkout
+          <span>💳</span> Select Delivery & Pay
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modal: Delivery Checkout
+       ========================================================================== -->
+  <div class="modal-backdrop" id="checkout-modal" onclick="app.closeModalOnBackdrop(event, 'checkout-modal')">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm Delivery & Payment</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('checkout-modal')">✕</button>
+      </div>
+
+      <form onsubmit="app.handleCheckoutSubmit(event)">
+        <!-- Saved Addresses Picker -->
+        <div class="form-group">
+          <label class="form-label">1. Choose Delivery Address</label>
+          <div class="checkout-address-picker" id="checkout-address-picker">
+            <!-- Populated via JS -->
+          </div>
+          <button type="button" class="btn-secondary" style="width: 100%; font-size: 0.82rem; padding: 0.45rem;" onclick="app.openAddressModal()">
+            <span>➕</span> Add a New Address
+          </button>
+        </div>
+
+        <!-- Or custom address input -->
+        <div class="form-group" id="custom-address-group">
+          <label class="form-label">Delivery Destination Line</label>
+          <input type="text" class="form-input" id="checkout-address" required placeholder="Flat/House No., Building, Street Name, Area">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contact Phone (10-Digit Mobile)</label>
+          <input type="tel" class="form-input" id="checkout-phone" required pattern="^[6-9]\d{9}$" placeholder="e.g. 9876543210" title="Enter a valid 10-digit Indian phone number starting with 6-9">
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="form-group">
+          <label class="form-label">2. Select Payment Method</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+            <label class="checkout-address-card" id="pay-opt-cod" onclick="app.selectPaymentMethod('COD')">
+              <div>
+                <div style="font-weight: 800; font-size: 0.95rem;">💵 Cash on Delivery</div>
+                <div style="font-size: 0.75rem; color: var(--text-subtle);">Pay cash or UPI at door</div>
+              </div>
+              <input type="radio" name="payment_method" value="COD" checked>
+            </label>
+
+            <label class="checkout-address-card" id="pay-opt-wallet" onclick="app.selectPaymentMethod('WALLET')">
+              <div>
+                <div style="font-weight: 800; font-size: 0.95rem;">👛 SliceWallet</div>
+                <div style="font-size: 0.75rem; color: var(--crust-gold);" id="checkout-wallet-bal-text">Balance: ₹0.00</div>
+              </div>
+              <input type="radio" name="payment_method" value="WALLET">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Delivery Instructions (Optional)</label>
+          <input type="text" class="form-input" id="checkout-notes" placeholder="e.g. Leave with security, ring doorbell twice">
+        </div>
+
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; font-weight: 800;">
+            <span>Grand Total Due:</span>
+            <span id="checkout-modal-total" style="color: var(--crust-gold); font-size: 1.3rem;">₹0.00</span>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 0.25rem;" id="checkout-payment-hint">
+            ⚡ Selected: Cash on Delivery / Counter Tap
+          </span>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.85rem;" id="checkout-submit-btn">
+          <span>🔥</span> Fire Up the Stone Oven & Place Order
+        </button>
+      </form>
     </div>
   </div>
 
@@ -366,7 +624,7 @@
       <div class="modal-header">
         <div>
           <h3 class="modal-title" id="customizer-pizza-title">Craft Your Artisanal Pizza</h3>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">Choose your stone-oven crust, size, and signature toppings.</p>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Choose your stone-oven crust, size, and signature gourmet toppings.</p>
         </div>
         <button class="modal-close-btn" onclick="app.closeModal('customizer-modal')">✕</button>
       </div>
@@ -377,19 +635,19 @@
         <div class="crust-choice-grid">
           <div class="crust-card selected" onclick="app.selectCrust(this, 'Hand-Tossed Classic', 0)">
             <span class="crust-name">Hand-Tossed</span>
-            <span class="crust-desc">72h Fermented</span>
+            <span class="crust-desc">72h Fermented (₹0)</span>
           </div>
           <div class="crust-card" onclick="app.selectCrust(this, 'Crispy Thin Crust', 0)">
             <span class="crust-name">Thin Crust</span>
-            <span class="crust-desc">Extra Crispy</span>
+            <span class="crust-desc">Extra Crispy (₹0)</span>
           </div>
-          <div class="crust-card" onclick="app.selectCrust(this, 'Cheese-Stuffed', 2.99)">
+          <div class="crust-card" onclick="app.selectCrust(this, 'Cheese-Stuffed Crust', 79)">
             <span class="crust-name">Cheese-Stuffed</span>
-            <span class="crust-desc">Mozzarella (+2.99)</span>
+            <span class="crust-desc">Mozzarella (+₹79)</span>
           </div>
-          <div class="crust-card" onclick="app.selectCrust(this, 'Cauliflower Gluten-Free', 3.49)">
+          <div class="crust-card" onclick="app.selectCrust(this, 'Cauliflower Gluten-Free', 99)">
             <span class="crust-name">Gluten-Free</span>
-            <span class="crust-desc">Cauliflower (+3.49)</span>
+            <span class="crust-desc">Cauliflower (+₹99)</span>
           </div>
         </div>
       </div>
@@ -410,16 +668,16 @@
         <label class="form-label">3. Signature Gourmet Add-ons</label>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
           <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer;">
-            <input type="checkbox" onchange="app.toggleTopping('Extra Fior di Latte Mozzarella', 1.99, this)"> Extra Mozzarella (+$1.99)
+            <input type="checkbox" onchange="app.toggleTopping('Extra Fior di Latte Mozzarella', 69, this)"> Extra Mozzarella (+₹69)
           </label>
           <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer;">
-            <input type="checkbox" onchange="app.toggleTopping('Calabrian Hot Honey Drizzle', 1.49, this)"> Hot Honey (+$1.49)
+            <input type="checkbox" onchange="app.toggleTopping('Calabrian Hot Honey Drizzle', 49, this)"> Hot Honey (+₹49)
           </label>
           <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer;">
-            <input type="checkbox" onchange="app.toggleTopping('Aromatic Truffle Cream', 2.49, this)"> Truffle Glaze (+$2.49)
+            <input type="checkbox" onchange="app.toggleTopping('Aromatic Truffle Cream', 89, this)"> Truffle Glaze (+₹89)
           </label>
           <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer;">
-            <input type="checkbox" onchange="app.toggleTopping('Roasted Garlic Cloves', 1.29, this)"> Roasted Garlic (+$1.29)
+            <input type="checkbox" onchange="app.toggleTopping('Roasted Garlic Cloves', 39, this)"> Roasted Garlic (+₹39)
           </label>
         </div>
       </div>
@@ -427,14 +685,14 @@
       <!-- Baking Instructions -->
       <div class="form-group">
         <label class="form-label">4. Special Baking Instructions</label>
-        <textarea class="form-textarea" id="custom-notes" placeholder="e.g. Well-done crust, slice in 8, extra oregano..."></textarea>
+        <textarea class="form-textarea" id="custom-notes" placeholder="e.g. Well-done crispy crust, slice into 8, extra oregano seasoning..."></textarea>
       </div>
 
       <!-- Price & Add Action -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem; border-top: 1px solid var(--border-glass); padding-top: 1.25rem;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem; border-top: 1px solid var(--card-border); padding-top: 1.25rem;">
         <div>
           <span class="price-subtext">Estimated Price</span>
-          <div class="card-price" id="customizer-calculated-price">$13.99</div>
+          <div class="card-price" id="customizer-calculated-price">₹299.00</div>
         </div>
         <button class="btn-primary" onclick="app.addCustomizedPizzaToCart()">
           <span>🛒</span> Add to Order
@@ -444,43 +702,109 @@
   </div>
 
   <!-- ==========================================================================
-       Modal: Delivery Checkout
+       Modal: Add / Edit Address Modal
        ========================================================================== -->
-  <div class="modal-backdrop" id="checkout-modal" onclick="app.closeModalOnBackdrop(event, 'checkout-modal')">
-    <div class="modal-dialog">
+  <div class="modal-backdrop" id="address-modal" onclick="app.closeModalOnBackdrop(event, 'address-modal')">
+    <div class="modal-dialog" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 class="modal-title">Complete Delivery Order</h3>
-        <button class="modal-close-btn" onclick="app.closeModal('checkout-modal')">✕</button>
+        <h3 class="modal-title">Save Delivery Address</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('address-modal')">✕</button>
       </div>
 
-      <form onsubmit="app.handleCheckoutSubmit(event)">
+      <form onsubmit="app.handleSaveAddress(event)">
         <div class="form-group">
-          <label class="form-label">Delivery Address</label>
-          <input type="text" class="form-input" id="checkout-address" required placeholder="e.g. 742 Evergreen Terrace, Apt 4B">
+          <label class="form-label">Address Tag</label>
+          <select class="form-select" id="addr-tag" required>
+            <option value="Home">🏠 Home</option>
+            <option value="Work">🏢 Work</option>
+            <option value="Other">📍 Other</option>
+          </select>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Contact Phone (for Courier SMS updates)</label>
-          <input type="tel" class="form-input" id="checkout-phone" required placeholder="e.g. +1 (555) 019-2834">
+          <label class="form-label">House / Flat / Floor & Building</label>
+          <input type="text" class="form-input" id="addr-line1" required placeholder="e.g. Flat 402, Sunshine Heights">
         </div>
 
         <div class="form-group">
-          <label class="form-label">Delivery Notes</label>
-          <input type="text" class="form-input" id="checkout-notes" placeholder="e.g. Ring front doorbell, leave at door">
+          <label class="form-label">Street / Area / Landmark</label>
+          <input type="text" class="form-input" id="addr-landmark" required placeholder="e.g. Near Indiranagar Metro Station">
         </div>
 
-        <div style="background: rgba(255, 87, 34, 0.08); border: 1px solid rgba(255, 87, 34, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem;">
-          <div style="display: flex; justify-content: space-between; font-weight: 700;">
-            <span>Order Total Due:</span>
-            <span id="checkout-modal-total" style="color: var(--gold-500); font-size: 1.2rem;">$0.00</span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input type="text" class="form-input" id="addr-city" required value="Bengaluru">
           </div>
-          <span style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">⚡ Payment method: Cash on Delivery / Counter Tap</span>
+          <div class="form-group">
+            <label class="form-label">6-Digit Pincode</label>
+            <input type="text" class="form-input" id="addr-pincode" required pattern="^\d{6}$" placeholder="560038" title="Enter 6-digit Indian PIN Code">
+          </div>
         </div>
 
-        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.85rem;" id="checkout-submit-btn">
-          <span>🔥</span> Fire Up the Oven & Place Order
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+          <input type="checkbox" id="addr-is-default" style="width: 18px; height: 18px; cursor: pointer;">
+          <label for="addr-is-default" style="font-size: 0.88rem; cursor: pointer;">Set as default delivery address</label>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.8rem;">
+          <span>💾</span> Save Address
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modal: SliceWallet Top-Up Modal
+       ========================================================================== -->
+  <div class="modal-backdrop" id="wallet-modal" onclick="app.closeModalOnBackdrop(event, 'wallet-modal')">
+    <div class="modal-dialog" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Top-Up SliceWallet</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('wallet-modal')">✕</button>
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <label class="form-label">Select Quick Amount</label>
+        <div class="topup-chips">
+          <div class="topup-chip active" onclick="app.setTopupAmount(250, this)">₹250</div>
+          <div class="topup-chip" onclick="app.setTopupAmount(500, this)">₹500</div>
+          <div class="topup-chip" onclick="app.setTopupAmount(1000, this)">₹1000</div>
+          <div class="topup-chip" onclick="app.setTopupAmount(2000, this)">₹2000</div>
+        </div>
+
+        <label class="form-label">Or Custom Amount (₹)</label>
+        <input type="number" class="form-input" id="wallet-topup-input" value="250" min="10" max="50000" step="10">
+      </div>
+
+      <button class="btn-primary" style="width: 100%; padding: 0.85rem;" onclick="app.submitWalletTopup()">
+        <span>💳</span> Add Money via UPI / Card
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modal: Itemized Tax Invoice / Receipt
+       ========================================================================== -->
+  <div class="modal-backdrop" id="invoice-modal" onclick="app.closeModalOnBackdrop(event, 'invoice-modal')">
+    <div class="modal-dialog" style="max-width: 640px; background: #fff; color: #1e1e1e;">
+      <div class="modal-header" style="border-color: #e2e8f0;">
+        <h3 class="modal-title" style="color: #0f172a;">Tax Invoice & Receipt</h3>
+        <button class="modal-close-btn" style="color: #64748b; background: #f1f5f9;" onclick="app.closeModal('invoice-modal')">✕</button>
+      </div>
+
+      <div id="invoice-printable">
+        <!-- Rendered dynamically via JS -->
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+        <button class="btn-secondary" style="color: #334155; border-color: #cbd5e1; background: #f8fafc;" onclick="window.print()">
+          <span>🖨️</span> Print Invoice
+        </button>
+        <button class="btn-primary" onclick="app.closeModal('invoice-modal')">
+          Done
+        </button>
+      </div>
     </div>
   </div>
 
@@ -522,7 +846,7 @@
     </div>
   </div>
 
-  <!-- Floating Toast Container -->
+  <!-- Floating Toast Notifications Container -->
   <div class="toast-container" id="toast-container"></div>
 
   <!-- Application Controller Script -->

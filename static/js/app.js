@@ -1,29 +1,40 @@
 /**
  * SliceCraft Artisanal Pizza Delivery - Front-End Application Controller
- * Single Page Application (SPA) with reactive state management, animations, and real-time dispatch.
+ * High-performance Single Page Application (SPA) with reactive state, stone-oven preloader,
+ * Rupee pricing, SliceWallet, Promo Coupons, Address Book, and GST-compliant Tax Invoices.
  */
 
 class SliceCraftApp {
   constructor() {
-    this.apiBase = '';
     this.tokenKey = 'slicecraft_access_token';
     this.refreshKey = 'slicecraft_refresh_token';
     this.userKey = 'slicecraft_user';
     this.cartKey = 'slicecraft_cart';
+    this.soundKey = 'slicecraft_sound_enabled';
 
-    // Reactive State
+    // Reactive Application State
     this.currentUser = null;
     this.menu = [];
     this.cart = [];
+    this.savedAddresses = [];
+    this.coupons = [];
+    this.walletData = { balance: 0.0, transactions: [] };
+    this.selectedAddressId = null;
+    this.appliedCoupon = null; // { code, discount, discount_type }
+    this.orderMode = 'DELIVERY'; // 'DELIVERY' or 'TAKEAWAY'
+    this.paymentMethod = 'COD'; // 'COD' or 'WALLET'
+    this.isVegOnly = false;
     this.selectedCategory = 'all';
     this.searchQuery = '';
+    
+    // Live Tracker & Staff State
     this.activeOrder = null;
     this.userOrders = [];
     this.adminOrders = [];
     this.adminStats = null;
     this.currentView = 'menu';
 
-    // Customizer Modal State
+    // Pizza Crafter Modal State
     this.customizerState = {
       basePizza: null,
       crust: 'Hand-Tossed Classic',
@@ -34,31 +45,89 @@ class SliceCraftApp {
       notes: ''
     };
 
-    // Audio Context for UI Feedback
+    // Web Audio Synthesizer State
     this.audioCtx = null;
+    this.soundEnabled = localStorage.getItem(this.soundKey) !== 'false';
   }
 
+  // ==========================================================================
+  // Initialization & Preloader Flow
+  // ==========================================================================
   init() {
+    this.initPreloader();
     this.loadPersistedAuth();
     this.loadPersistedCart();
+    this.updateSoundButtonUI();
     this.fetchMenu();
+    this.fetchCoupons();
+
+    if (this.currentUser) {
+      this.fetchAddresses();
+      this.fetchWallet();
+      this.refreshOrderHistory(false);
+    }
+
     this.updateAuthHeaderUI();
     this.updateCartCountUI();
 
-    // Auto-poll tracker and admin board if visible
+    // Auto-polling for real-time dispatch updates
     setInterval(() => {
       if (this.currentView === 'tracker' && this.currentUser) {
         this.refreshOrderHistory(false);
       } else if (this.currentView === 'admin' && this.currentUser?.is_staff) {
         this.fetchStaffData(false);
       }
-    }, 12000);
+    }, 10000);
+  }
+
+  initPreloader() {
+    const preloader = document.getElementById('app-preloader');
+    const bar = document.getElementById('preloader-bar');
+    const status = document.getElementById('preloader-status');
+    if (!preloader) return;
+
+    const stages = [
+      { pct: 25, msg: 'Preheating stone deck to 500°C...' },
+      { pct: 55, msg: 'Rolling 72-hour fermented sourdough...' },
+      { pct: 85, msg: 'Stoking imported beechwood embers...' },
+      { pct: 100, msg: 'Artisanal Pizzeria Ready!' }
+    ];
+
+    let current = 0;
+    const interval = setInterval(() => {
+      if (current < stages.length) {
+        const stage = stages[current];
+        if (bar) bar.style.width = `${stage.pct}%`;
+        if (status) status.textContent = stage.msg;
+        current++;
+      } else {
+        clearInterval(interval);
+        setTimeout(() => {
+          preloader.classList.add('fade-out');
+          setTimeout(() => preloader.remove(), 600);
+        }, 350);
+      }
+    }, 280);
   }
 
   // ==========================================================================
-  // Audio Feedback (Web Audio API Chime)
+  // Synthesized Web Audio Feedback (Zero External Dependencies)
   // ==========================================================================
+  toggleSound() {
+    this.soundEnabled = !this.soundEnabled;
+    localStorage.setItem(this.soundKey, this.soundEnabled);
+    this.updateSoundButtonUI();
+    this.showToast(this.soundEnabled ? 'Audio feedback enabled 🔊' : 'Audio feedback muted 🔇', 'info');
+    if (this.soundEnabled) this.playChime('pop');
+  }
+
+  updateSoundButtonUI() {
+    const btn = document.getElementById('sound-toggle-btn');
+    if (btn) btn.textContent = this.soundEnabled ? '🔊' : '🔇';
+  }
+
   playChime(type = 'success') {
+    if (!this.soundEnabled) return;
     try {
       if (!this.audioCtx) {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -73,22 +142,33 @@ class SliceCraftApp {
       osc.connect(gain);
       gain.connect(this.audioCtx.destination);
 
+      const now = this.audioCtx.currentTime;
       if (type === 'success') {
-        osc.frequency.setValueAtTime(587.33, this.audioCtx.currentTime); // D5
-        osc.frequency.exponentialRampToValueAtTime(880, this.audioCtx.currentTime + 0.15); // A5
-        gain.gain.setValueAtTime(0.12, this.audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.35);
+        // Melodic ascending two-tone chime
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.15); // G5
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
         osc.start();
-        osc.stop(this.audioCtx.currentTime + 0.35);
+        osc.stop(now + 0.35);
       } else if (type === 'pop') {
-        osc.frequency.setValueAtTime(440, this.audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.08, this.audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1);
+        // Subtle crisp UI pop
+        osc.frequency.setValueAtTime(440, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
         osc.start();
-        osc.stop(this.audioCtx.currentTime + 0.1);
+        osc.stop(now + 0.09);
+      } else if (type === 'coins') {
+        // Coin top-up jingle
+        osc.frequency.setValueAtTime(987.77, now); // B5
+        osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start();
+        osc.stop(now + 0.3);
       }
     } catch (e) {
-      // Audio not supported or blocked, ignore gracefully
+      // Audio autoplay policy or unsupported - ignore safely
     }
   }
 
@@ -97,10 +177,8 @@ class SliceCraftApp {
   // ==========================================================================
   loadPersistedAuth() {
     try {
-      const storedUser = localStorage.getItem(this.userKey);
-      if (storedUser) {
-        this.currentUser = JSON.parse(storedUser);
-      }
+      const stored = localStorage.getItem(this.userKey);
+      if (stored) this.currentUser = JSON.parse(stored);
     } catch (e) {
       this.currentUser = null;
     }
@@ -137,7 +215,7 @@ class SliceCraftApp {
 
     let response = await fetch(url, { ...options, headers });
 
-    // Handle token expiration
+    // Handle token refresh on 401
     if (response.status === 401 && localStorage.getItem(this.refreshKey)) {
       const refreshed = await this.tryRefreshToken();
       if (refreshed) {
@@ -191,8 +269,15 @@ class SliceCraftApp {
       this.playChime('success');
       this.showToast(`Welcome back, ${data.user.username}!`, 'success');
 
+      // Fetch user specific datasets
+      this.fetchAddresses();
+      this.fetchWallet();
+      this.refreshOrderHistory(false);
+
       if (data.user.is_staff) {
         this.showSection('admin');
+      } else {
+        this.showSection('menu');
       }
       return true;
     } catch (err) {
@@ -213,7 +298,7 @@ class SliceCraftApp {
         throw new Error(data.detail || 'Sign up failed');
       }
 
-      this.showToast('Account created successfully! Signing you in...', 'success');
+      this.showToast('Account created! Credited ₹500 SliceWallet welcome bonus! 🎉', 'success');
       return await this.login(username, password);
     } catch (err) {
       this.showToast(err.message, 'error');
@@ -226,9 +311,11 @@ class SliceCraftApp {
     localStorage.removeItem(this.refreshKey);
     localStorage.removeItem(this.userKey);
     this.currentUser = null;
+    this.walletData = { balance: 0.0, transactions: [] };
+    this.savedAddresses = [];
     this.updateAuthHeaderUI();
-    this.showToast('Logged out to guest mode.', 'info');
-    if (this.currentView === 'admin' || this.currentView === 'tracker') {
+    this.showToast('Logged out to Guest Mode.', 'info');
+    if (this.currentView === 'admin' || this.currentView === 'wallet' || this.currentView === 'addresses') {
       this.showSection('menu');
     }
   }
@@ -239,35 +326,65 @@ class SliceCraftApp {
 
   updateAuthHeaderUI() {
     const container = document.getElementById('auth-header-container');
+    const walletPill = document.getElementById('header-wallet-pill');
+    const adminNavBtn = document.getElementById('nav-admin');
+
     if (!container) return;
 
     if (this.currentUser) {
       container.innerHTML = `
-        <div class="user-badge">
+        <div class="user-badge" onclick="app.showSection('wallet')">
           <div class="user-avatar">${this.currentUser.username[0].toUpperCase()}</div>
           <div style="display: flex; flex-direction: column;">
             <span style="font-weight: 700; font-size: 0.85rem; line-height: 1.1;">${this.currentUser.username}</span>
-            <span style="font-size: 0.7rem; color: ${this.currentUser.is_staff ? 'var(--gold-500)' : 'var(--basil-500)'}; font-weight: 600;">
-              ${this.currentUser.is_staff ? '👨‍🍳 Staff' : '🍕 Foodie'}
+            <span style="font-size: 0.7rem; color: ${this.currentUser.is_staff ? 'var(--crust-gold)' : 'var(--basil-leaf)'}; font-weight: 700;">
+              ${this.currentUser.is_staff ? '👨‍🍳 Staff Admin' : '🍕 Foodie'}
             </span>
           </div>
-          <button style="background: none; border: none; color: var(--text-subtle); cursor: pointer; margin-left: 0.4rem;" onclick="app.logout()" title="Log Out">✕</button>
+          <button style="background: none; border: none; color: var(--text-subtle); cursor: pointer; margin-left: 0.35rem;" onclick="event.stopPropagation(); app.logout()" title="Log Out">✕</button>
         </div>
       `;
+
+      if (walletPill) {
+        walletPill.style.display = 'block';
+        const amtEl = document.getElementById('header-wallet-amount');
+        if (amtEl) amtEl.textContent = `₹${(this.currentUser.wallet_balance || 0).toFixed(2)}`;
+      }
+
+      if (adminNavBtn) {
+        adminNavBtn.style.display = this.currentUser.is_staff ? 'flex' : 'none';
+      }
     } else {
       container.innerHTML = `
         <button class="btn-secondary" onclick="app.openAuthModal('login')">Sign In</button>
       `;
+      if (walletPill) walletPill.style.display = 'none';
+      if (adminNavBtn) adminNavBtn.style.display = 'none';
     }
   }
 
   // ==========================================================================
-  // Section Navigation & Views
+  // Section Navigation & RBAC Guard
   // ==========================================================================
   showSection(sectionId) {
+    // RBAC Security Check
+    if (sectionId === 'admin') {
+      if (!this.currentUser || !this.currentUser.is_staff) {
+        this.showToast('Kitchen Portal is restricted to Kitchen Staff only. Please sign in as admin.', 'error');
+        this.openAuthModal('login');
+        return;
+      }
+    } else if (sectionId === 'wallet' || sectionId === 'addresses') {
+      if (!this.currentUser) {
+        this.showToast('Please sign in to access your SliceWallet & Saved Addresses.', 'info');
+        this.openAuthModal('login');
+        return;
+      }
+    }
+
     this.currentView = sectionId;
 
-    const sections = ['menu', 'tracker', 'admin'];
+    const sections = ['menu', 'deals', 'wallet', 'addresses', 'tracker', 'admin'];
     sections.forEach(s => {
       const el = document.getElementById(`${s}-section`);
       const navBtn = document.getElementById(`nav-${s}`);
@@ -283,15 +400,17 @@ class SliceCraftApp {
       hero.style.display = (sectionId === 'menu') ? 'grid' : 'none';
     }
 
+    // Refresh Section Data
     if (sectionId === 'tracker') {
       this.refreshOrderHistory();
     } else if (sectionId === 'admin') {
-      if (!this.currentUser || !this.currentUser.is_staff) {
-        this.showToast('Kitchen Portal requires Staff permissions. Please log in as admin.', 'info');
-        this.openAuthModal('login');
-      } else {
-        this.fetchStaffData();
-      }
+      this.fetchStaffData();
+    } else if (sectionId === 'wallet') {
+      this.fetchWallet();
+    } else if (sectionId === 'addresses') {
+      this.fetchAddresses();
+    } else if (sectionId === 'deals') {
+      this.fetchCoupons();
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -304,34 +423,63 @@ class SliceCraftApp {
   }
 
   // ==========================================================================
-  // Menu Fetching & Rendering
+  // Order Mode (Delivery vs Takeaway)
+  // ==========================================================================
+  setOrderMode(mode) {
+    this.orderMode = mode;
+    const delBtn = document.getElementById('mode-delivery-btn');
+    const takeBtn = document.getElementById('mode-takeaway-btn');
+
+    if (mode === 'DELIVERY') {
+      delBtn?.classList.add('active');
+      takeBtn?.classList.remove('active');
+      this.showToast('🛵 Delivery selected (Free above ₹399, hot in 25m)', 'info');
+    } else {
+      takeBtn?.classList.add('active');
+      delBtn?.classList.remove('active');
+      this.showToast('🛍️ Takeaway selected (₹0 Delivery Fee, ready in 15m)', 'info');
+    }
+
+    this.renderCart();
+  }
+
+  // ==========================================================================
+  // Menu Fetching, Filtering & Search
   // ==========================================================================
   async fetchMenu() {
     const grid = document.getElementById('pizza-grid-container');
     if (grid) {
       grid.innerHTML = `
         <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">
-          <div style="font-size: 2.5rem; animation: floatSpin 2s linear infinite; display: inline-block;">🍕</div>
-          <p style="margin-top: 1rem; font-weight: 600;">Stoking the wood-fired ovens & loading artisanal pizzas...</p>
+          <div style="font-size: 2.5rem; animation: preloaderSpin 2s linear infinite; display: inline-block;">🍕</div>
+          <p style="margin-top: 1rem; font-weight: 600;">Stoking the wood-fired ovens & fetching fresh menu...</p>
         </div>
       `;
     }
 
     try {
       const res = await fetch('/orders/menu');
-      if (!res.ok) throw new Error('Failed to load menu catalog');
+      if (!res.ok) throw new Error('Failed to load menu');
       this.menu = await res.json();
       this.renderMenu();
     } catch (err) {
       if (grid) {
         grid.innerHTML = `
-          <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--danger-500);">
-            <p>⚠️ Unable to load menu catalog. Please verify the API connection.</p>
+          <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--tomato-red);">
+            <p>⚠️ Unable to load menu catalog. Please check backend connection.</p>
             <button class="btn-secondary" style="margin-top: 1rem;" onclick="app.fetchMenu()">Retry</button>
           </div>
         `;
       }
     }
+  }
+
+  toggleVegFilter() {
+    this.isVegOnly = !this.isVegOnly;
+    const sw = document.getElementById('veg-only-switch');
+    if (sw) sw.classList.toggle('active', this.isVegOnly);
+    this.playChime('pop');
+    this.renderMenu();
   }
 
   filterCategory(category) {
@@ -345,6 +493,7 @@ class SliceCraftApp {
         p.classList.remove('active');
       }
     });
+    this.playChime('pop');
     this.renderMenu();
   }
 
@@ -359,10 +508,17 @@ class SliceCraftApp {
 
     let filtered = this.menu;
 
-    if (this.selectedCategory !== 'all') {
-      filtered = filtered.filter(p => p.category.toLowerCase() === this.selectedCategory.toLowerCase());
+    // Filter by pure veg
+    if (this.isVegOnly) {
+      filtered = filtered.filter(p => p.is_veg === true);
     }
 
+    // Filter by Category
+    if (this.selectedCategory !== 'all') {
+      filtered = filtered.filter(p => p.category.toLowerCase().includes(this.selectedCategory.toLowerCase()));
+    }
+
+    // Filter by Search Query
     if (this.searchQuery) {
       filtered = filtered.filter(p => 
         p.name.toLowerCase().includes(this.searchQuery) ||
@@ -374,9 +530,9 @@ class SliceCraftApp {
     if (filtered.length === 0) {
       grid.innerHTML = `
         <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">
-          <div style="font-size: 2rem;">🔍</div>
-          <p style="margin-top: 0.5rem; font-size: 1.1rem; font-weight: 600;">No artisanal pizzas matched "${this.searchQuery}".</p>
-          <button class="btn-secondary" style="margin-top: 1rem;" onclick="app.handleSearch(''); document.getElementById('menu-search-input').value='';">Clear Filter</button>
+          <div style="font-size: 2.5rem;">🔍</div>
+          <p style="margin-top: 0.5rem; font-size: 1.15rem; font-weight: 700;">No culinary items match your filter.</p>
+          <button class="btn-secondary" style="margin-top: 1rem;" onclick="app.isVegOnly=false; app.selectedCategory='all'; app.searchQuery=''; app.renderMenu();">Reset All Filters</button>
         </div>
       `;
       return;
@@ -390,40 +546,48 @@ class SliceCraftApp {
         .map(i => `<span class="ingredient-chip">${i.trim()}</span>`)
         .join('');
 
+      const vegDotClass = pizza.is_veg ? 'veg-icon-dot' : 'non-veg-icon-dot';
+
       return `
         <div class="pizza-card" data-id="${pizza.id}">
           <div class="card-image-box">
             <img src="${pizza.image_url || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80'}" alt="${pizza.name}" class="card-image" loading="lazy">
             ${pizza.badge ? `<div class="card-badge">${pizza.badge}</div>` : ''}
-            <div class="card-category-tag">${pizza.category}</div>
+            <div class="veg-indicator-badge">
+              <div class="${vegDotClass}"></div>
+            </div>
           </div>
 
           <div class="card-content">
-            <h3 class="card-title">${pizza.name}</h3>
-            <p class="card-description">${pizza.description}</p>
+            <div class="card-title-row">
+              <h3 class="card-title">${pizza.name}</h3>
+              <div class="card-rating">★ ${(pizza.rating || 4.8).toFixed(1)}</div>
+            </div>
+            
+            <p class="card-description">${pizza.description || ''}</p>
             
             <div class="card-ingredients-row">
               ${ingredientsList}
             </div>
 
-            <!-- Size Selector Pills -->
+            <!-- Size Selector Buttons -->
             <div class="card-size-selector" data-pizza="${pizza.name}" data-base="${pizza.base_price}">
               <button class="size-btn active" onclick="app.onCardSizeChange(this, 'SMALL', 0.85)">S (10")</button>
               <button class="size-btn" onclick="app.onCardSizeChange(this, 'MEDIUM', 1.0)">M (12")</button>
-              <button class="size-btn" onclick="app.onCardSizeChange(this, 'LARGE', 1.25)">L (14")</button>
-              <button class="size-btn" onclick="app.onCardSizeChange(this, 'EXTRA-LARGE', 1.5)">XL (16")</button>
+              <button class="size-btn" onclick="app.onCardSizeChange(this, 'LARGE', 1.35)">L (14")</button>
+              <button class="size-btn" onclick="app.onCardSizeChange(this, 'EXTRA-LARGE', 1.65)">XL (16")</button>
             </div>
 
             <div class="card-footer">
               <div class="card-price-box">
-                <span class="price-subtext">Price</span>
-                <span class="card-price price-display">$${smallPrice}</span>
+                <span class="price-subtext">Starting Price</span>
+                <span class="card-price price-display">₹${smallPrice}</span>
               </div>
               <div style="display: flex; gap: 0.5rem;">
                 <button class="btn-secondary" style="padding: 0.45rem 0.75rem; font-size: 0.82rem; border-radius: 10px;" onclick="app.openCustomizerForPizza('${pizza.name}')" title="Customize Crust & Toppings">
                   🛠️ Customize
                 </button>
-                <button class="card-add-btn" onclick="app.addCardPizzaToCart(this, '${pizza.name}')" title="Quick Add">
+                <button class="card-add-btn" onclick="app.addCardPizzaToCart(this, '${pizza.name}')" title="Quick Add to Order">
                   +
                 </button>
               </div>
@@ -436,31 +600,31 @@ class SliceCraftApp {
 
   onCardSizeChange(btn, size, multiplier) {
     const parent = btn.closest('.card-size-selector');
-    const basePrice = parseFloat(parent.getAttribute('data-base')) || 14.99;
+    const basePrice = parseFloat(parent.getAttribute('data-base')) || 349.0;
     parent.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
     const card = btn.closest('.pizza-card');
     const priceDisplay = card.querySelector('.price-display');
     if (priceDisplay) {
-      priceDisplay.textContent = `$${(basePrice * multiplier).toFixed(2)}`;
+      priceDisplay.textContent = `₹${(basePrice * multiplier).toFixed(2)}`;
     }
   }
 
   addCardPizzaToCart(btn, pizzaName) {
     const card = btn.closest('.pizza-card');
     const selector = card.querySelector('.card-size-selector');
-    const activeSizeBtn = selector.querySelector('.size-btn.active');
+    const activeSizeBtn = selector?.querySelector('.size-btn.active');
     const sizeText = activeSizeBtn ? activeSizeBtn.textContent : 'S';
     
     let size = 'SMALL';
     let multiplier = 0.85;
     if (sizeText.startsWith('M')) { size = 'MEDIUM'; multiplier = 1.0; }
-    else if (sizeText.startsWith('L')) { size = 'LARGE'; multiplier = 1.25; }
-    else if (sizeText.startsWith('XL')) { size = 'EXTRA-LARGE'; multiplier = 1.5; }
+    else if (sizeText.startsWith('L')) { size = 'LARGE'; multiplier = 1.35; }
+    else if (sizeText.startsWith('XL')) { size = 'EXTRA-LARGE'; multiplier = 1.65; }
 
     const pizza = this.menu.find(p => p.name === pizzaName);
-    const base = pizza ? pizza.base_price : 14.99;
+    const base = pizza ? pizza.base_price : 349.0;
     const unitPrice = parseFloat((base * multiplier).toFixed(2));
 
     this.addToCart({
@@ -481,12 +645,12 @@ class SliceCraftApp {
   // Customizer Modal Logic ("The Artisan Oven")
   // ==========================================================================
   openCustomizerModal() {
-    const defaultPizza = this.menu.length > 0 ? this.menu[0] : { name: 'Margherita Speciale', base_price: 13.99 };
+    const defaultPizza = this.menu.length > 0 ? this.menu[0] : { name: 'Margherita Speciale D.O.P.', base_price: 299.0 };
     this.openCustomizerForPizza(defaultPizza.name);
   }
 
   openCustomizerForPizza(pizzaName) {
-    const pizza = this.menu.find(p => p.name === pizzaName) || { name: pizzaName, base_price: 13.99 };
+    const pizza = this.menu.find(p => p.name === pizzaName) || { name: pizzaName, base_price: 349.0 };
     this.customizerState = {
       basePizza: pizza,
       crust: 'Hand-Tossed Classic',
@@ -534,8 +698,8 @@ class SliceCraftApp {
     const multipliers = {
       'SMALL': 0.85,
       'MEDIUM': 1.0,
-      'LARGE': 1.25,
-      'EXTRA-LARGE': 1.5
+      'LARGE': 1.35,
+      'EXTRA-LARGE': 1.65
     };
     document.querySelectorAll('#customizer-modal .size-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -554,14 +718,14 @@ class SliceCraftApp {
   }
 
   recalculateCustomizerPrice() {
-    const base = this.customizerState.basePizza?.base_price || 13.99;
+    const base = this.customizerState.basePizza?.base_price || 349.0;
     const scaledBase = base * this.customizerState.sizeMultiplier;
     const crustAddon = this.customizerState.crustExtra;
     const toppingsAddon = Object.values(this.customizerState.extraToppings).reduce((a, b) => a + b, 0);
 
     const unitPrice = (scaledBase + crustAddon + toppingsAddon).toFixed(2);
     const display = document.getElementById('customizer-calculated-price');
-    if (display) display.textContent = `$${unitPrice}`;
+    if (display) display.textContent = `₹${unitPrice}`;
     return parseFloat(unitPrice);
   }
 
@@ -648,7 +812,7 @@ class SliceCraftApp {
     const totalEl = document.getElementById('header-cart-total');
 
     if (countEl) countEl.textContent = totalCount;
-    if (totalEl) totalEl.textContent = `$${subtotal.toFixed(2)}`;
+    if (totalEl) totalEl.textContent = `₹${subtotal.toFixed(2)}`;
   }
 
   renderCart() {
@@ -657,12 +821,12 @@ class SliceCraftApp {
 
     if (this.cart.length === 0) {
       container.innerHTML = `
-        <div class="cart-empty-state">
+        <div class="cart-empty-state" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
           <div style="font-size: 3rem;">🛒</div>
-          <p style="font-weight: 700; font-size: 1.15rem;">Your cart is hungry!</p>
-          <p style="font-size: 0.85rem;">Explore our stone-oven menu and craft your perfect pie.</p>
-          <button class="btn-primary" style="margin-top: 0.5rem;" onclick="app.toggleCartDrawer(); app.scrollToMenu();">
-            Browse Menu
+          <p style="font-weight: 800; font-size: 1.15rem; color: var(--text-main); margin-top: 0.5rem;">Your cart is hungry!</p>
+          <p style="font-size: 0.85rem; margin-top: 0.25rem;">Explore our stone-oven menu and craft your perfect pie.</p>
+          <button class="btn-primary" style="margin-top: 1rem;" onclick="app.toggleCartDrawer(); app.scrollToMenu();">
+            Browse Artisanal Menu
           </button>
         </div>
       `;
@@ -673,14 +837,14 @@ class SliceCraftApp {
     container.innerHTML = this.cart.map(item => `
       <div class="cart-item-row">
         <div class="item-info">
-          <div class="item-name">${item.pizza_name}</div>
-          <div class="item-meta">${item.pizza_size} • $${item.unit_price.toFixed(2)} each</div>
-          ${item.notes ? `<div style="font-size: 0.72rem; color: var(--gold-500); margin-top: 0.2rem;">${item.notes}</div>` : ''}
-          <div class="item-price">$${(item.unit_price * item.quantity).toFixed(2)}</div>
+          <div class="item-name" style="font-weight: 700; font-size: 0.95rem;">${item.pizza_name}</div>
+          <div class="item-meta" style="font-size: 0.78rem; color: var(--text-subtle);">${item.pizza_size} • ₹${item.unit_price.toFixed(2)} each</div>
+          ${item.notes ? `<div style="font-size: 0.72rem; color: var(--crust-gold); margin-top: 0.2rem;">${item.notes}</div>` : ''}
+          <div class="item-price" style="font-weight: 800; color: var(--cheese-melt); margin-top: 0.35rem;">₹${(item.unit_price * item.quantity).toFixed(2)}</div>
         </div>
         <div class="qty-control">
           <button class="qty-btn" onclick="app.updateCartQty(${item.id}, -1)">−</button>
-          <span style="font-weight: 700; font-size: 0.85rem; min-width: 16px; text-align: center;">${item.quantity}</span>
+          <span style="font-weight: 800; font-size: 0.85rem; min-width: 18px; text-align: center;">${item.quantity}</span>
           <button class="qty-btn" onclick="app.updateCartQty(${item.id}, 1)">+</button>
         </div>
       </div>
@@ -692,23 +856,436 @@ class SliceCraftApp {
 
   updateCartTotals(subtotal) {
     const subtotalEl = document.getElementById('cart-subtotal');
+    const discountRow = document.getElementById('cart-discount-row');
+    const discountEl = document.getElementById('cart-discount');
     const deliveryEl = document.getElementById('cart-delivery-fee');
+    const deliveryLabel = document.getElementById('cart-delivery-label');
     const taxEl = document.getElementById('cart-tax');
     const grandTotalEl = document.getElementById('cart-grand-total');
 
-    const deliveryFee = (subtotal === 0 || subtotal >= 25.0) ? 0.0 : 3.99;
-    const tax = subtotal * 0.08;
-    const grandTotal = subtotal + deliveryFee + tax;
+    // Free delivery progress meter
+    const freeThreshold = 399.0;
+    const meter = document.getElementById('cart-delivery-meter');
+    const meterText = document.getElementById('free-delivery-text');
+    const meterPct = document.getElementById('free-delivery-percent');
+    const meterBar = document.getElementById('free-delivery-bar');
 
-    if (subtotalEl) subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
-    if (deliveryEl) deliveryEl.textContent = deliveryFee === 0 ? 'FREE ($0.00)' : `$${deliveryFee.toFixed(2)}`;
-    if (taxEl) taxEl.textContent = `$${tax.toFixed(2)}`;
-    if (grandTotalEl) grandTotalEl.textContent = `$${grandTotal.toFixed(2)}`;
+    if (this.orderMode === 'TAKEAWAY') {
+      if (meter) meter.style.display = 'none';
+    } else {
+      if (meter) meter.style.display = 'block';
+      if (subtotal >= freeThreshold) {
+        if (meterText) meterText.textContent = '🎉 You unlocked FREE Delivery!';
+        if (meterPct) meterPct.textContent = '100%';
+        if (meterBar) meterBar.style.width = '100%';
+      } else {
+        const remaining = (freeThreshold - subtotal).toFixed(2);
+        const pct = Math.min(100, Math.round((subtotal / freeThreshold) * 100));
+        if (meterText) meterText.textContent = `Add ₹${remaining} for FREE Delivery`;
+        if (meterPct) meterPct.textContent = `${pct}%`;
+        if (meterBar) meterBar.style.width = `${pct}%`;
+      }
+    }
+
+    // Delivery fee calculation
+    let deliveryFee = 0.0;
+    if (this.orderMode === 'DELIVERY') {
+      deliveryFee = (subtotal === 0 || subtotal >= freeThreshold) ? 0.0 : 49.0;
+      if (deliveryLabel) deliveryLabel.textContent = 'Free over ₹399';
+    } else {
+      deliveryFee = 0.0;
+      if (deliveryLabel) deliveryLabel.textContent = 'Takeaway Free';
+    }
+
+    // Coupon discount calculation
+    let discount = 0.0;
+    if (this.appliedCoupon && subtotal >= (this.appliedCoupon.min_order_amount || 0)) {
+      if (this.appliedCoupon.discount_type === 'PERCENTAGE') {
+        discount = (subtotal * this.appliedCoupon.discount_value) / 100.0;
+        if (this.appliedCoupon.max_discount && discount > this.appliedCoupon.max_discount) {
+          discount = this.appliedCoupon.max_discount;
+        }
+      } else {
+        discount = this.appliedCoupon.discount_value;
+      }
+    } else if (this.appliedCoupon && subtotal < (this.appliedCoupon.min_order_amount || 0)) {
+      this.appliedCoupon = null;
+      this.updateAppliedCouponUI();
+    }
+
+    discount = Math.min(discount, subtotal);
+    const discountedSubtotal = Math.max(0, subtotal - discount);
+    const tax = discountedSubtotal * 0.05; // 5% GST
+    const grandTotal = discountedSubtotal + deliveryFee + tax;
+
+    if (subtotalEl) subtotalEl.textContent = `₹${subtotal.toFixed(2)}`;
+    if (discountRow) {
+      discountRow.style.display = discount > 0 ? 'flex' : 'none';
+      if (discountEl) discountEl.textContent = `−₹${discount.toFixed(2)}`;
+    }
+    if (deliveryEl) deliveryEl.textContent = deliveryFee === 0 ? 'FREE (₹0.00)' : `₹${deliveryFee.toFixed(2)}`;
+    if (taxEl) taxEl.textContent = `₹${tax.toFixed(2)}`;
+    if (grandTotalEl) grandTotalEl.textContent = `₹${grandTotal.toFixed(2)}`;
+  }
+
+  // ==========================================================================
+  // Promo Coupon Engine
+  // ==========================================================================
+  async fetchCoupons() {
+    try {
+      const res = await fetch('/orders/coupons');
+      if (res.ok) {
+        this.coupons = await res.json();
+        this.renderCouponsHub();
+      }
+    } catch (e) {}
+  }
+
+  renderCouponsHub() {
+    const container = document.getElementById('deals-grid-container');
+    if (!container) return;
+
+    if (this.coupons.length === 0) {
+      container.innerHTML = `<p style="color: var(--text-muted); grid-column: 1/-1;">No active promo coupons right now.</p>`;
+      return;
+    }
+
+    container.innerHTML = this.coupons.map(c => `
+      <div class="coupon-card">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="coupon-code-badge">${c.code}</div>
+            <span style="font-size: 0.75rem; background: rgba(34, 197, 94, 0.15); color: #86efac; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700;">ACTIVE</span>
+          </div>
+          <div style="font-size: 0.95rem; font-weight: 700; margin: 0.6rem 0 0.25rem;">${c.description}</div>
+          <div style="font-size: 0.78rem; color: var(--text-subtle);">
+            ${c.min_order_amount > 0 ? `Min. Order: ₹${c.min_order_amount.toFixed(2)}` : 'No minimum order'}
+            ${c.max_discount ? ` • Max Discount: ₹${c.max_discount.toFixed(2)}` : ''}
+          </div>
+        </div>
+        <button class="btn-primary" style="padding: 0.55rem; font-size: 0.85rem;" onclick="app.applyCouponDirect('${c.code}')">
+          🎟️ Apply Code
+        </button>
+      </div>
+    `).join('');
+  }
+
+  applyCouponDirect(code) {
+    const input = document.getElementById('cart-coupon-input');
+    if (input) input.value = code;
+    this.applyCoupon(code);
+    this.toggleCartDrawer();
+  }
+
+  async applyCouponFromCart() {
+    const code = document.getElementById('cart-coupon-input')?.value?.trim().toUpperCase();
+    if (!code) {
+      this.showToast('Please enter a coupon code', 'info');
+      return;
+    }
+    await this.applyCoupon(code);
+  }
+
+  async applyCoupon(code) {
+    const subtotal = this.cart.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+    if (subtotal === 0) {
+      this.showToast('Please add items to your cart before applying a coupon.', 'info');
+      return;
+    }
+
+    try {
+      const res = await fetch('/orders/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, order_amount: subtotal })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || 'Invalid or expired coupon');
+      }
+
+      this.appliedCoupon = data;
+      this.updateAppliedCouponUI();
+      this.renderCart();
+      this.playChime('success');
+      this.showToast(`🎉 Coupon ${code} applied! You save ₹${data.discount.toFixed(2)}!`, 'success');
+    } catch (e) {
+      this.showToast(e.message, 'error');
+    }
+  }
+
+  removeCoupon() {
+    this.appliedCoupon = null;
+    const input = document.getElementById('cart-coupon-input');
+    if (input) input.value = '';
+    this.updateAppliedCouponUI();
+    this.renderCart();
+    this.showToast('Coupon removed.', 'info');
+  }
+
+  updateAppliedCouponUI() {
+    const pill = document.getElementById('applied-coupon-pill');
+    const name = document.getElementById('applied-coupon-name');
+    if (this.appliedCoupon && pill && name) {
+      name.textContent = this.appliedCoupon.code;
+      pill.style.display = 'flex';
+    } else if (pill) {
+      pill.style.display = 'none';
+    }
+  }
+
+  // ==========================================================================
+  // SliceWallet & Loyalty Points
+  // ==========================================================================
+  async fetchWallet() {
+    if (!this.currentUser) return;
+    try {
+      const res = await this.fetchWithAuth('/auth/wallet');
+      if (res.ok) {
+        this.walletData = await res.json();
+        this.currentUser.wallet_balance = this.walletData.balance;
+        localStorage.setItem(this.userKey, JSON.stringify(this.currentUser));
+        
+        const balEl = document.getElementById('wallet-display-balance');
+        const headerAmt = document.getElementById('header-wallet-amount');
+        const chkAmt = document.getElementById('checkout-wallet-bal-text');
+
+        if (balEl) balEl.textContent = `₹${this.walletData.balance.toFixed(2)}`;
+        if (headerAmt) headerAmt.textContent = `₹${this.walletData.balance.toFixed(2)}`;
+        if (chkAmt) chkAmt.textContent = `Balance: ₹${this.walletData.balance.toFixed(2)}`;
+
+        this.renderWalletTransactions();
+      }
+    } catch (e) {}
+  }
+
+  renderWalletTransactions() {
+    const tbody = document.getElementById('wallet-tx-tbody');
+    if (!tbody) return;
+
+    if (!this.walletData.transactions || this.walletData.transactions.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem;">No wallet transactions recorded yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = this.walletData.transactions.map(tx => {
+      const isCredit = tx.transaction_type === 'CREDIT';
+      const formattedDate = new Date(tx.created_at || Date.now()).toLocaleString();
+      return `
+        <tr>
+          <td><strong style="color: var(--text-subtle);">#${tx.id}</strong></td>
+          <td>${formattedDate}</td>
+          <td><span class="status-badge ${isCredit ? 'delivered' : 'cancelled'}">${tx.transaction_type}</span></td>
+          <td>${tx.description || 'Wallet Transaction'}</td>
+          <td class="${isCredit ? 'tx-credit' : 'tx-debit'}">
+            ${isCredit ? '+' : '−'}₹${tx.amount.toFixed(2)}
+          </td>
+          <td><strong>₹${tx.balance_after.toFixed(2)}</strong></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  openWalletTopupModal() {
+    if (!this.currentUser) {
+      this.openAuthModal('login');
+      return;
+    }
+    this.openModal('wallet-modal');
+  }
+
+  setTopupAmount(amt, chipEl) {
+    document.querySelectorAll('.topup-chip').forEach(c => c.classList.remove('active'));
+    if (chipEl) chipEl.classList.add('active');
+    const input = document.getElementById('wallet-topup-input');
+    if (input) input.value = amt;
+  }
+
+  async submitWalletTopup() {
+    const input = document.getElementById('wallet-topup-input');
+    const amount = parseFloat(input?.value) || 0;
+    if (amount <= 0) {
+      this.showToast('Please enter a valid top-up amount', 'info');
+      return;
+    }
+
+    try {
+      const res = await this.fetchWithAuth('/auth/wallet/topup', {
+        method: 'POST',
+        body: JSON.stringify({ amount })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Top-up failed');
+
+      this.closeModal('wallet-modal');
+      this.playChime('coins');
+      this.showToast(`₹${amount.toFixed(2)} added to your SliceWallet!`, 'success');
+      this.fetchWallet();
+    } catch (e) {
+      this.showToast(e.message, 'error');
+    }
+  }
+
+  // ==========================================================================
+  // Saved Address Book
+  // ==========================================================================
+  async fetchAddresses() {
+    if (!this.currentUser) return;
+    try {
+      const res = await this.fetchWithAuth('/auth/addresses');
+      if (res.ok) {
+        this.savedAddresses = await res.json();
+        this.renderAddressBook();
+        this.renderCheckoutAddressPicker();
+      }
+    } catch (e) {}
+  }
+
+  renderAddressBook() {
+    const container = document.getElementById('addresses-grid-container');
+    if (!container) return;
+
+    if (this.savedAddresses.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 3rem; background: var(--card-bg); border-radius: 16px;">
+          <p style="color: var(--text-muted); font-size: 1rem;">No saved addresses found. Add an address for instant 1-tap checkout!</p>
+          <button class="btn-primary" style="margin-top: 1rem;" onclick="app.openAddressModal()">Add Address</button>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = this.savedAddresses.map(a => `
+      <div class="address-card ${a.is_default ? 'is-default' : ''}">
+        <div class="address-tag">${a.tag || 'Home'}</div>
+        ${a.is_default ? `<span style="font-size: 0.75rem; color: var(--crust-gold); font-weight: 800; float: right;">★ DEFAULT</span>` : ''}
+        <div style="font-weight: 700; font-size: 1.05rem; margin-top: 0.35rem;">${a.line1}</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">${a.landmark}</div>
+        <div style="font-size: 0.85rem; color: var(--text-subtle);">${a.city}, ${a.state} — ${a.pincode}</div>
+        
+        <div style="display: flex; gap: 0.5rem; margin-top: 1.25rem;">
+          ${!a.is_default ? `
+            <button class="btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.78rem;" onclick="app.setDefaultAddress(${a.id})">
+              Make Default
+            </button>
+          ` : ''}
+          <button class="btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.78rem; color: var(--tomato-red);" onclick="app.deleteAddress(${a.id})">
+            Delete
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  renderCheckoutAddressPicker() {
+    const picker = document.getElementById('checkout-address-picker');
+    const input = document.getElementById('checkout-address');
+    if (!picker) return;
+
+    if (this.savedAddresses.length === 0) {
+      picker.innerHTML = `<p style="font-size: 0.82rem; color: var(--text-subtle);">No saved addresses. Enter address below:</p>`;
+      return;
+    }
+
+    picker.innerHTML = this.savedAddresses.map(a => {
+      const isSel = (this.selectedAddressId === a.id) || (!this.selectedAddressId && a.is_default);
+      if (isSel && input) {
+        input.value = `${a.line1}, ${a.landmark}, ${a.city} - ${a.pincode}`;
+      }
+      return `
+        <div class="checkout-address-card ${isSel ? 'selected' : ''}" onclick="app.selectCheckoutAddress(${a.id})">
+          <div>
+            <div style="font-weight: 800; font-size: 0.88rem;">${a.tag}: ${a.line1}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${a.landmark}, ${a.city} - ${a.pincode}</div>
+          </div>
+          <span style="font-size: 0.85rem; color: var(--crust-gold); font-weight: 800;">${isSel ? '✓' : ''}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  selectCheckoutAddress(id) {
+    this.selectedAddressId = id;
+    const a = this.savedAddresses.find(addr => addr.id === id);
+    if (a) {
+      const input = document.getElementById('checkout-address');
+      if (input) input.value = `${a.line1}, ${a.landmark}, ${a.city} - ${a.pincode}`;
+    }
+    this.renderCheckoutAddressPicker();
+  }
+
+  openAddressModal() {
+    if (!this.currentUser) {
+      this.openAuthModal('login');
+      return;
+    }
+    this.openModal('address-modal');
+  }
+
+  async handleSaveAddress(e) {
+    e.preventDefault();
+    const tag = document.getElementById('addr-tag')?.value || 'Home';
+    const line1 = document.getElementById('addr-line1')?.value || '';
+    const landmark = document.getElementById('addr-landmark')?.value || '';
+    const city = document.getElementById('addr-city')?.value || 'Bengaluru';
+    const pincode = document.getElementById('addr-pincode')?.value || '560038';
+    const is_default = document.getElementById('addr-is-default')?.checked || false;
+
+    try {
+      const res = await this.fetchWithAuth('/auth/addresses', {
+        method: 'POST',
+        body: JSON.stringify({ tag, line1, landmark, city, pincode, state: 'Karnataka', is_default })
+      });
+      if (!res.ok) throw new Error('Failed to save address');
+
+      this.closeModal('address-modal');
+      this.playChime('success');
+      this.showToast('Delivery address saved to address book!', 'success');
+      this.fetchAddresses();
+    } catch (e) {
+      this.showToast(e.message, 'error');
+    }
+  }
+
+  async setDefaultAddress(id) {
+    try {
+      const res = await this.fetchWithAuth(`/auth/addresses/${id}/default`, { method: 'PUT' });
+      if (res.ok) {
+        this.showToast('Default address updated.', 'info');
+        this.fetchAddresses();
+      }
+    } catch (e) {}
+  }
+
+  async deleteAddress(id) {
+    if (!confirm('Are you sure you want to remove this address?')) return;
+    try {
+      const res = await this.fetchWithAuth(`/auth/addresses/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        this.showToast('Address removed.', 'info');
+        this.fetchAddresses();
+      }
+    } catch (e) {}
   }
 
   // ==========================================================================
   // Checkout & Order Placement
   // ==========================================================================
+  selectPaymentMethod(method) {
+    this.paymentMethod = method;
+    const codRadio = document.querySelector('input[name="payment_method"][value="COD"]');
+    const walRadio = document.querySelector('input[name="payment_method"][value="WALLET"]');
+    const hint = document.getElementById('checkout-payment-hint');
+
+    if (method === 'COD') {
+      if (codRadio) codRadio.checked = true;
+      if (hint) hint.textContent = '⚡ Payment: Cash on Delivery / Counter Tap';
+    } else {
+      if (walRadio) walRadio.checked = true;
+      if (hint) hint.textContent = '⚡ Payment: Instant deduction from SliceWallet';
+    }
+  }
+
   openCheckoutModal() {
     if (this.cart.length === 0) {
       this.showToast('Your cart is empty. Add a delicious pizza first!', 'info');
@@ -722,21 +1299,34 @@ class SliceCraftApp {
     }
 
     // Prefill user details if available
-    const addrInput = document.getElementById('checkout-address');
     const phoneInput = document.getElementById('checkout-phone');
-    if (addrInput && this.currentUser.default_address) {
-      addrInput.value = this.currentUser.default_address;
-    }
     if (phoneInput && this.currentUser.phone) {
       phoneInput.value = this.currentUser.phone;
     }
 
+    this.renderCheckoutAddressPicker();
+
+    // Recalculate totals
     const subtotal = this.cart.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
-    const deliveryFee = (subtotal >= 25.0) ? 0.0 : 3.99;
-    const grandTotal = subtotal + deliveryFee + (subtotal * 0.08);
+    const freeThreshold = 399.0;
+    const deliveryFee = (this.orderMode === 'TAKEAWAY' || subtotal >= freeThreshold) ? 0.0 : 49.0;
+    
+    let discount = 0.0;
+    if (this.appliedCoupon) {
+      if (this.appliedCoupon.discount_type === 'PERCENTAGE') {
+        discount = (subtotal * this.appliedCoupon.discount_value) / 100.0;
+        if (this.appliedCoupon.max_discount && discount > this.appliedCoupon.max_discount) {
+          discount = this.appliedCoupon.max_discount;
+        }
+      } else {
+        discount = this.appliedCoupon.discount_value;
+      }
+    }
+    const discounted = Math.max(0, subtotal - discount);
+    const grandTotal = discounted + deliveryFee + (discounted * 0.05);
 
     const totalDisplay = document.getElementById('checkout-modal-total');
-    if (totalDisplay) totalDisplay.textContent = `$${grandTotal.toFixed(2)}`;
+    if (totalDisplay) totalDisplay.textContent = `₹${grandTotal.toFixed(2)}`;
 
     this.toggleCartDrawer();
     this.openModal('checkout-modal');
@@ -747,15 +1337,24 @@ class SliceCraftApp {
     const btn = document.getElementById('checkout-submit-btn');
     if (btn) {
       btn.disabled = true;
-      btn.innerHTML = `<span>⏳</span> Dispatching to Kitchen Oven...`;
+      btn.innerHTML = `<span>⏳</span> Preheating Oven & Booking Order...`;
     }
 
-    const address = document.getElementById('checkout-address')?.value || 'Pickup';
-    const phone = document.getElementById('checkout-phone')?.value || 'N/A';
+    const address = document.getElementById('checkout-address')?.value || 'Takeaway Counter';
+    const phone = document.getElementById('checkout-phone')?.value || '9876543210';
     const notes = document.getElementById('checkout-notes')?.value || '';
 
+    // Validate phone number
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      this.showToast('Please enter a valid 10-digit Indian phone number (starting 6-9).', 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<span>🔥</span> Fire Up the Stone Oven & Place Order`;
+      }
+      return;
+    }
+
     try {
-      // Place each unique item or aggregate into an order
       for (const item of this.cart) {
         const fullNotes = item.notes ? `${item.notes} | ${notes}` : notes;
         const payload = {
@@ -764,7 +1363,10 @@ class SliceCraftApp {
           quantity: item.quantity,
           customer_address: address,
           customer_phone: phone,
-          notes: fullNotes
+          notes: fullNotes,
+          order_type: this.orderMode,
+          payment_method: this.paymentMethod,
+          coupon_code: this.appliedCoupon ? this.appliedCoupon.code : null
         };
 
         const res = await this.fetchWithAuth('/orders/order', {
@@ -782,12 +1384,14 @@ class SliceCraftApp {
       }
 
       this.cart = [];
+      this.appliedCoupon = null;
       this.saveCart();
       this.closeModal('checkout-modal');
       this.playChime('success');
-      this.showToast('🍕 Order placed! The wood-fire oven is preheating.', 'success');
+      this.showToast('🍕 Stone-oven order fired up successfully!', 'success');
 
-      // Navigate to Tracker
+      // Refresh wallet & navigate to tracker
+      this.fetchWallet();
       this.showSection('tracker');
       this.refreshOrderHistory();
     } catch (err) {
@@ -795,13 +1399,13 @@ class SliceCraftApp {
     } finally {
       if (btn) {
         btn.disabled = false;
-        btn.innerHTML = `<span>🔥</span> Fire Up the Oven & Place Order`;
+        btn.innerHTML = `<span>🔥</span> Fire Up the Stone Oven & Place Order`;
       }
     }
   }
 
   // ==========================================================================
-  // Live Order Tracker
+  // Live Order Tracker & Dispatch Telemetry
   // ==========================================================================
   async refreshOrderHistory(notify = true) {
     if (!this.currentUser) return;
@@ -812,7 +1416,6 @@ class SliceCraftApp {
         if (this.userOrders.length > 0 && !this.activeOrder) {
           this.activeOrder = this.userOrders[0];
         } else if (this.activeOrder) {
-          // Update active order state from fresh data
           const updated = this.userOrders.find(o => o.id === this.activeOrder.id);
           if (updated) this.activeOrder = updated;
         }
@@ -827,11 +1430,15 @@ class SliceCraftApp {
     const titleEl = document.getElementById('tracker-order-title');
     const metaEl = document.getElementById('tracker-order-meta');
     const badgeEl = document.getElementById('tracker-order-status-badge');
+    const courierInfo = document.getElementById('tracker-courier-info');
+    const invoiceBtn = document.getElementById('tracker-invoice-btn');
 
     if (!this.activeOrder) {
       if (titleEl) titleEl.textContent = 'No Active Order Selected';
-      if (metaEl) metaEl.textContent = 'Place an order or click any receipt below to monitor live.';
-      if (badgeEl) badgeEl.innerHTML = `<span class="status-badge pending">Awaiting Order</span>`;
+      if (metaEl) metaEl.textContent = 'Place an order or select any past receipt below to view live telemetry.';
+      if (badgeEl) badgeEl.innerHTML = `<span class="status-badge pending">Awaiting Selection</span>`;
+      if (courierInfo) courierInfo.style.display = 'none';
+      if (invoiceBtn) invoiceBtn.style.display = 'none';
       this.updateStepperProgress('NONE');
       return;
     }
@@ -839,7 +1446,16 @@ class SliceCraftApp {
     const order = this.activeOrder;
     if (titleEl) titleEl.textContent = `Order #${order.id} — ${order.pizza_name}`;
     if (metaEl) {
-      metaEl.textContent = `Size: ${order.pizza_size} • Qty: ${order.quantity} • Total: $${order.total_price.toFixed(2)} • Destination: ${order.customer_address}`;
+      metaEl.textContent = `Size: ${order.pizza_size} • Qty: ${order.quantity} • Total: ₹${order.total_price.toFixed(2)} • Destination: ${order.customer_address}`;
+    }
+
+    if (courierInfo) {
+      courierInfo.style.display = 'block';
+      courierInfo.textContent = `🛵 Dispatch Courier: ${order.delivery_partner_name || 'Ramesh Kumar'} (${order.delivery_partner_phone || '9876543210'}) • Payment: ${order.payment_method}`;
+    }
+
+    if (invoiceBtn) {
+      invoiceBtn.style.display = 'inline-flex';
     }
 
     const status = order.order_status;
@@ -864,9 +1480,7 @@ class SliceCraftApp {
     const stepDelivered = document.getElementById('step-delivered');
 
     [stepPending, stepBaking, stepTransit, stepDelivered].forEach(s => {
-      if (s) {
-        s.classList.remove('active', 'completed');
-      }
+      if (s) s.classList.remove('active', 'completed');
     });
 
     if (status === 'PENDING') {
@@ -890,7 +1504,7 @@ class SliceCraftApp {
 
     if (this.userOrders.length === 0) {
       container.innerHTML = `
-        <div style="text-align: center; padding: 2rem; color: var(--text-muted); background: var(--bg-card); border-radius: 16px;">
+        <div style="text-align: center; padding: 2rem; color: var(--text-muted); background: var(--card-bg); border-radius: 16px;">
           No previous orders found for this account.
         </div>
       `;
@@ -898,18 +1512,22 @@ class SliceCraftApp {
     }
 
     container.innerHTML = this.userOrders.map(o => `
-      <div class="cart-item-row" style="cursor: pointer; ${this.activeOrder?.id === o.id ? 'border-color: var(--flame-500);' : ''}" onclick="app.selectActiveOrder(${o.id})">
+      <div class="cart-item-row" style="cursor: pointer; ${this.activeOrder?.id === o.id ? 'border-color: var(--crust-gold);' : ''}" onclick="app.selectActiveOrder(${o.id})">
         <div>
-          <div style="font-weight: 700; font-size: 1rem;">Order #${o.id} — ${o.pizza_name} (${o.pizza_size})</div>
+          <div style="font-weight: 800; font-size: 1rem;">Order #${o.id} — ${o.pizza_name} (${o.pizza_size})</div>
           <div style="font-size: 0.8rem; color: var(--text-subtle);">
-            Placed on ${new Date(o.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Qty: ${o.quantity} • $${o.total_price.toFixed(2)}
+            ${new Date(o.created_at || Date.now()).toLocaleString()} • Qty: ${o.quantity} • <strong>₹${o.total_price.toFixed(2)}</strong> • Paid via ${o.payment_method}
           </div>
-          ${o.notes ? `<div style="font-size: 0.75rem; color: var(--gold-500); margin-top: 0.2rem;">${o.notes}</div>` : ''}
+          ${o.coupon_code ? `<span style="font-size: 0.72rem; color: #86efac; font-weight: 700;">Coupon: ${o.coupon_code}</span>` : ''}
+          ${o.notes ? `<div style="font-size: 0.75rem; color: var(--crust-gold); margin-top: 0.2rem;">${o.notes}</div>` : ''}
         </div>
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
           <span class="status-badge ${o.order_status.toLowerCase()}">${o.order_status}</span>
+          <button class="btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="event.stopPropagation(); app.openInvoiceModal(${o.id})">
+            🧾 Invoice
+          </button>
           ${o.order_status === 'PENDING' ? `
-            <button class="btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--danger-500);" onclick="event.stopPropagation(); app.cancelOrder(${o.id})">
+            <button class="btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--tomato-red);" onclick="event.stopPropagation(); app.cancelOrder(${o.id})">
               Cancel
             </button>
           ` : ''}
@@ -928,7 +1546,7 @@ class SliceCraftApp {
   }
 
   async cancelOrder(orderId) {
-    if (!confirm(`Are you sure you want to cancel Order #${orderId}?`)) return;
+    if (!confirm(`Are you sure you want to cancel Order #${orderId}? If paid with SliceWallet, the amount will be immediately refunded.`)) return;
     try {
       const res = await this.fetchWithAuth(`/orders/order/delete/${orderId}`, {
         method: 'DELETE'
@@ -937,8 +1555,9 @@ class SliceCraftApp {
         const err = await res.json();
         throw new Error(err.detail || 'Cancellation failed');
       }
-      this.showToast(`Order #${orderId} was cancelled.`, 'info');
+      this.showToast(`Order #${orderId} cancelled. Wallet refund processed if applicable.`, 'info');
       this.activeOrder = null;
+      this.fetchWallet();
       this.refreshOrderHistory();
     } catch (e) {
       this.showToast(e.message, 'error');
@@ -946,7 +1565,126 @@ class SliceCraftApp {
   }
 
   // ==========================================================================
-  // Kitchen Staff Admin Portal
+  // Itemized Tax Invoice Generator Modal
+  // ==========================================================================
+  openInvoiceModal(orderId) {
+    const order = this.userOrders.find(o => o.id === orderId) || this.adminOrders.find(o => o.id === orderId) || this.activeOrder;
+    if (!order) {
+      this.showToast('Invoice details unavailable', 'error');
+      return;
+    }
+
+    const container = document.getElementById('invoice-printable');
+    if (!container) return;
+
+    const subtotal = order.subtotal || order.total_price;
+    const discount = order.discount_amount || 0.0;
+    const deliveryFee = order.delivery_fee || 0.0;
+    const tax = order.tax_amount || (subtotal * 0.05);
+    const grandTotal = order.total_price;
+    const cgst = (tax / 2).toFixed(2);
+    const sgst = (tax / 2).toFixed(2);
+
+    container.innerHTML = `
+      <div class="invoice-card">
+        <div class="invoice-header">
+          <div>
+            <div class="invoice-brand">
+              <span>🍕</span> SliceCraft Pizzeria
+            </div>
+            <div class="invoice-tax-meta">
+              Stone-Deck Wood-Fired Kitchen Dispatch<br>
+              <strong>GSTIN:</strong> 29AABCU9603R1ZM | <strong>FSSAI Lic:</strong> 11224333000554<br>
+              100-Ft Road, Indiranagar, Bengaluru, Karnataka 560038
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-weight: 800; font-size: 1.15rem; color: #0f172a;">TAX INVOICE</div>
+            <div style="font-size: 0.82rem; color: #64748b; margin-top: 0.2rem;">Invoice #: INV-${order.id.toString().padStart(6, '0')}</div>
+            <div style="font-size: 0.82rem; color: #64748b;">Date: ${new Date(order.created_at || Date.now()).toLocaleDateString()}</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; font-size: 0.85rem;">
+          <div>
+            <strong style="color: #475569;">Billed To:</strong>
+            <div style="font-weight: 700; color: #0f172a;">${order.user_username || this.currentUser?.username || 'Customer'}</div>
+            <div>Phone: ${order.customer_phone || 'N/A'}</div>
+            <div>Address: ${order.customer_address}</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: #475569;">Order Details:</strong>
+            <div>Order ID: #${order.id}</div>
+            <div>Order Mode: <strong>${order.order_type || 'DELIVERY'}</strong></div>
+            <div>Payment: <strong>${order.payment_method} (${order.payment_status || 'PAID'})</strong></div>
+            <div>Courier: ${order.delivery_partner_name || 'Ramesh Kumar'}</div>
+          </div>
+        </div>
+
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>Item Description</th>
+              <th>Size</th>
+              <th>Qty</th>
+              <th>Rate (₹)</th>
+              <th style="text-align: right;">Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>${order.pizza_name}</strong>
+                ${order.notes ? `<div style="font-size: 0.72rem; color: #64748b;">${order.notes}</div>` : ''}
+              </td>
+              <td>${order.pizza_size}</td>
+              <td>${order.quantity}</td>
+              <td>₹${(subtotal / order.quantity).toFixed(2)}</td>
+              <td style="text-align: right;">₹${subtotal.toFixed(2)}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table class="invoice-summary-table">
+          <tr>
+            <td>Item Subtotal:</td>
+            <td style="text-align: right; font-weight: 600;">₹${subtotal.toFixed(2)}</td>
+          </tr>
+          ${discount > 0 ? `
+            <tr style="color: #16a34a;">
+              <td>Discount (${order.coupon_code || 'Promo'}):</td>
+              <td style="text-align: right; font-weight: 600;">−₹${discount.toFixed(2)}</td>
+            </tr>
+          ` : ''}
+          <tr>
+            <td>Delivery Fee:</td>
+            <td style="text-align: right; font-weight: 600;">₹${deliveryFee.toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td>CGST (2.5%):</td>
+            <td style="text-align: right;">₹${cgst}</td>
+          </tr>
+          <tr>
+            <td>SGST (2.5%):</td>
+            <td style="text-align: right;">₹${sgst}</td>
+          </tr>
+          <tr class="invoice-total-row">
+            <td>Grand Total (INR):</td>
+            <td style="text-align: right;">₹${grandTotal.toFixed(2)}</td>
+          </tr>
+        </table>
+
+        <div style="font-size: 0.75rem; color: #94a3b8; text-align: center; margin-top: 1.5rem; border-top: 1px dashed #cbd5e1; padding-top: 0.75rem;">
+          Thank you for choosing SliceCraft Wood-Fired Pizzeria! This is a computer generated tax invoice.
+        </div>
+      </div>
+    `;
+
+    this.openModal('invoice-modal');
+  }
+
+  // ==========================================================================
+  // Kitchen Staff Admin Portal (Strict RBAC Guarded)
   // ==========================================================================
   async fetchStaffData(notify = true) {
     if (!this.currentUser || !this.currentUser.is_staff) return;
@@ -970,18 +1708,24 @@ class SliceCraftApp {
 
   renderAdminBoard() {
     if (this.adminStats) {
-      document.getElementById('kpi-revenue').textContent = `$${this.adminStats.total_revenue.toFixed(2)}`;
-      document.getElementById('kpi-total-orders').textContent = this.adminStats.total_orders;
-      document.getElementById('kpi-pending').textContent = this.adminStats.pending_count;
-      document.getElementById('kpi-transit').textContent = this.adminStats.transit_count;
-      document.getElementById('kpi-delivered').textContent = this.adminStats.delivered_count;
+      const revEl = document.getElementById('kpi-revenue');
+      const totEl = document.getElementById('kpi-total-orders');
+      const pendEl = document.getElementById('kpi-pending');
+      const tranEl = document.getElementById('kpi-transit');
+      const delEl = document.getElementById('kpi-delivered');
+
+      if (revEl) revEl.textContent = `₹${this.adminStats.total_revenue.toFixed(2)}`;
+      if (totEl) totEl.textContent = this.adminStats.total_orders;
+      if (pendEl) pendEl.textContent = this.adminStats.pending_count;
+      if (tranEl) tranEl.textContent = this.adminStats.transit_count;
+      if (delEl) delEl.textContent = this.adminStats.delivered_count;
     }
 
     const tbody = document.getElementById('admin-orders-tbody');
     if (!tbody) return;
 
     if (this.adminOrders.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem;">No orders registered in the system.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 2rem;">No orders registered in the system.</td></tr>`;
       return;
     }
 
@@ -995,17 +1739,19 @@ class SliceCraftApp {
 
       return `
         <tr>
-          <td><strong style="color: var(--flame-500);">#${o.id}</strong></td>
+          <td><strong style="color: var(--crust-gold);">#${o.id}</strong></td>
           <td>
-            <div style="font-weight: 600;">${o.user_username || 'Guest Customer'}</div>
+            <div style="font-weight: 700;">${o.user_username || 'Guest Customer'}</div>
             <div style="font-size: 0.75rem; color: var(--text-subtle);">${o.customer_phone || 'N/A'} • ${o.customer_address}</div>
           </td>
+          <td><span style="font-size: 0.75rem; font-weight: 700;">${o.order_type || 'DELIVERY'}</span></td>
           <td>
-            <div style="font-weight: 600;">${o.pizza_name}</div>
-            <div style="font-size: 0.75rem; color: var(--gold-500);">${o.pizza_size} ${o.notes ? `• ${o.notes}` : ''}</div>
+            <div style="font-weight: 700;">${o.pizza_name}</div>
+            <div style="font-size: 0.75rem; color: var(--crust-gold);">${o.pizza_size} ${o.notes ? `• ${o.notes}` : ''}</div>
           </td>
-          <td>${o.quantity}</td>
-          <td><strong style="color: var(--gold-500);">$${o.total_price.toFixed(2)}</strong></td>
+          <td><strong>${o.quantity}</strong></td>
+          <td><strong style="color: var(--crust-gold);">₹${o.total_price.toFixed(2)}</strong></td>
+          <td><span style="font-size: 0.75rem;">${o.payment_method}</span></td>
           <td><span class="status-badge ${statusClasses[o.order_status] || 'pending'}">${o.order_status}</span></td>
           <td>
             <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
@@ -1015,11 +1761,14 @@ class SliceCraftApp {
                 </button>
               ` : ''}
               ${o.order_status === 'IN-TRANSIT' ? `
-                <button class="btn-primary" style="background: var(--basil-500); padding: 0.35rem 0.7rem; font-size: 0.75rem;" onclick="app.adminUpdateStatus(${o.id}, 'DELIVERED')">
+                <button class="btn-primary" style="background: var(--basil-green); padding: 0.35rem 0.7rem; font-size: 0.75rem;" onclick="app.adminUpdateStatus(${o.id}, 'DELIVERED')">
                   Mark Delivered ✅
                 </button>
               ` : ''}
-              <button class="btn-secondary" style="padding: 0.35rem 0.6rem; font-size: 0.75rem; color: var(--danger-500);" onclick="app.adminDeleteOrder(${o.id})">
+              <button class="btn-secondary" style="padding: 0.35rem 0.6rem; font-size: 0.75rem;" onclick="app.openInvoiceModal(${o.id})" title="Print Invoice">
+                🧾
+              </button>
+              <button class="btn-secondary" style="padding: 0.35rem 0.6rem; font-size: 0.75rem; color: var(--tomato-red);" onclick="app.adminDeleteOrder(${o.id})" title="Delete Order">
                 🗑️
               </button>
             </div>
@@ -1037,7 +1786,7 @@ class SliceCraftApp {
       });
       if (!res.ok) throw new Error('Status update failed');
       this.playChime('pop');
-      this.showToast(`Order #${orderId} marked as ${newStatus}`, 'success');
+      this.showToast(`Order #${orderId} updated to ${newStatus}`, 'success');
       this.fetchStaffData(false);
     } catch (e) {
       this.showToast(e.message, 'error');
@@ -1095,20 +1844,22 @@ class SliceCraftApp {
       if (emailGroup) emailGroup.style.display = 'none';
       tabLogin?.classList.add('active');
       tabSignup?.classList.remove('active');
-      document.getElementById('auth-form').dataset.mode = 'login';
+      const form = document.getElementById('auth-form');
+      if (form) form.dataset.mode = 'login';
     } else {
       if (title) title.textContent = 'Create Foodie Account';
-      if (submitBtn) submitBtn.textContent = 'Register Account';
+      if (submitBtn) submitBtn.textContent = 'Register (Get ₹500 SliceWallet Bonus)';
       if (emailGroup) emailGroup.style.display = 'block';
       tabSignup?.classList.add('active');
       tabLogin?.classList.remove('active');
-      document.getElementById('auth-form').dataset.mode = 'signup';
+      const form = document.getElementById('auth-form');
+      if (form) form.dataset.mode = 'signup';
     }
   }
 
   async handleAuthSubmit(e) {
     e.preventDefault();
-    const mode = document.getElementById('auth-form').dataset.mode || 'login';
+    const mode = document.getElementById('auth-form')?.dataset.mode || 'login';
     const username = document.getElementById('auth-username')?.value || '';
     const password = document.getElementById('auth-password')?.value || '';
     const email = document.getElementById('auth-email')?.value || '';
@@ -1147,4 +1898,3 @@ const app = new SliceCraftApp();
 window.addEventListener('DOMContentLoaded', () => {
   app.init();
 });
-
