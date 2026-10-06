@@ -8,6 +8,7 @@ A production-grade, highly responsive, full-stack Pizza Delivery and Kitchen Dis
 
 ## 🌟 Key Highlights & Features
 
+- 🏛️ **Mythical & Historical Pizza Art Gallery**: The Grand Hall of Legendary Relics featuring the *1889 Royal Margherita di Savoia*, the *1734 Seafarers' Ancient Marinara*, the *Vesuvius Caldera Diavola*, and the *Renaissance Truffle Quattro Formaggi*. Complete with wax seal stamps, parchment chronicle lore, tasting profile bars, and Renaissance acoustic lute arpeggio audio synthesis.
 - 🇮🇳 **Rupee Economy & Algorithmic Pricing**: Complete Indian Rupee (INR ₹) standard across models, database, and client. Free delivery on orders above ₹399, standard ₹49 delivery fee, and 5% GST calculation.
 - 🍕 **Artisanal Menu & Pure Veg Filtering**: Hand-stretched wood-fired pizza selections with dynamic category filtering (Classic, Vegetarian, Meat Lovers, Specialty, Sides & Dips, Desserts), FSSAI green/red dot indicators, and instant search.
 - 🛵 **Delivery vs Takeaway Switcher**: Toggle between 30-minute home delivery and instant 15-minute takeaway pickup with automatic delivery fee waivers.
