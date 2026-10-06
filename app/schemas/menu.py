@@ -14,6 +14,11 @@ class PizzaMenuItemSchema(BaseModel):
     rating: float = Field(4.8, description="Rating out of 5.0")
     preparation_time: int = Field(20, description="Prep time in minutes")
     is_available: bool = True
+    origin_year: Optional[int] = Field(None, description="Historical creation year")
+    mythical_lore: Optional[str] = Field(None, description="Epic mythological or historical backstory")
+    legend_badge: Optional[str] = Field(None, description="Legendary seal badge")
+    era: Optional[str] = Field(None, description="Antiquity, Renaissance, etc.")
+    flavor_notes: Optional[str] = Field(None, description="Key sensory tasting notes")
 
     class Config:
         orm_mode = True

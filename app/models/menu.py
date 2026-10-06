@@ -21,6 +21,13 @@ class PizzaMenu(Base):
     rating = Column(Float, default=4.8)
     preparation_time = Column(Integer, default=20)              # In minutes
     is_available = Column(Boolean, default=True, index=True)
+    
+    # Mythical & Historical Pizza Lore
+    origin_year = Column(Integer, nullable=True, default=1889)  # Historical birth year of the recipe
+    mythical_lore = Column(Text, nullable=True)                 # Epic historical background & myth
+    legend_badge = Column(String(100), nullable=True)           # e.g., "👑 Royal Decree 1889", "🌋 Vesuvius Magma"
+    era = Column(String(100), nullable=True)                    # Antiquity, Renaissance, Volcanic Naples
+    flavor_notes = Column(String(200), nullable=True)           # Tasting notes
     created_at = Column(DateTime, default=utc_now)
 
     def __repr__(self):
@@ -39,5 +46,10 @@ class PizzaMenu(Base):
             "is_veg": bool(self.is_veg),
             "rating": round(float(self.rating or 4.8), 1),
             "preparation_time": int(self.preparation_time or 20),
-            "is_available": bool(self.is_available)
+            "is_available": bool(self.is_available),
+            "origin_year": self.origin_year,
+            "mythical_lore": self.mythical_lore or "",
+            "legend_badge": self.legend_badge or "",
+            "era": self.era or "",
+            "flavor_notes": self.flavor_notes or ""
         }

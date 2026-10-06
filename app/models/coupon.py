@@ -30,3 +30,4 @@ class Coupon(Base):
             "max_discount": self.max_discount,
             "is_active": bool(self.is_active)
         }
+
