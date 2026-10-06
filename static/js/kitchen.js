@@ -619,3 +619,4 @@ class KitchenKDS {
 // Global Kitchen Instance
 const kitchen = new KitchenKDS();
 document.addEventListener('DOMContentLoaded', () => kitchen.init());
+

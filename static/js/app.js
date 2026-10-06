@@ -431,15 +431,6 @@ class SliceCraftApp {
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-      this.fetchWallet();
-    } else if (sectionId === 'addresses') {
-      this.fetchAddresses();
-    } else if (sectionId === 'deals') {
-      this.fetchCoupons();
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
 
   scrollToMenu() {
     this.showSection('menu');
@@ -768,7 +759,6 @@ class SliceCraftApp {
         card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
       });
     });
-  }
   }
 
   onCardSizeChange(btn, size, multiplier) {
