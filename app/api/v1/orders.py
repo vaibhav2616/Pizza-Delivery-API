@@ -7,14 +7,19 @@ from fastapi_jwt_auth import AuthJWT
 
 from app.core.database import get_db
 from app.models.user import User
-from app.schemas.order import OrderModel, OrderStatusModel, OrderResponseModel
+from app.schemas.order import (
+    OrderModel,
+    OrderStatusModel,
+    CouponValidateSchema,
+    OrderResponseModel
+)
 from app.services.order_service import OrderService
 from app.services.menu_service import MenuService
 from app.api.deps import get_current_user, get_current_staff
 
 order_router = APIRouter(
     prefix="/orders",
-    tags=["Orders & Kitchen Dispatch"]
+    tags=["Orders, Menu & Kitchen Dispatch"]
 )
 
 @order_router.get("/", summary="Orders Service Health Check")
@@ -29,23 +34,57 @@ def hello(Authorize: AuthJWT = Depends()):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing access token"
         )
-    return {"message": "Pizza Orders Service is online and operational."}
+    return {"message": "Pizza Orders Service is online and operational in Indian Rupee (₹) currency."}
 
 
+# ==============================================================================
+# Menu & Catalog Endpoints
+# ==============================================================================
 @order_router.get("/menu", summary="Get Pizza Menu Catalog")
 @order_router.get("/menu/", include_in_schema=False)
 def get_menu(
-    category: Optional[str] = Query(None, description="Optional category filter: Classic, Meat, Vegetarian, Specialty"),
+    category: Optional[str] = Query(None, description="Category filter: Classic, Meat, Vegetarian, Specialty, Sides & Beverages"),
+    is_veg: Optional[bool] = Query(None, description="Filter for Vegetarian items only (Green Dot)"),
+    search: Optional[str] = Query(None, description="Search flavor, ingredient or dish name"),
     db: Session = Depends(get_db)
 ):
     """
-    ## Retrieve Handcrafted Pizza Menu
-    Publicly accessible endpoint for customers and visitors.
+    ## Retrieve Handcrafted Food & Pizza Menu
+    Publicly accessible endpoint for customers and visitors with dietary and search filtering.
     """
-    menu_items = MenuService.get_available_menu(db, category)
+    menu_items = MenuService.get_available_menu(db, category=category, is_veg=is_veg, search=search)
     return jsonable_encoder([item.to_dict() for item in menu_items])
 
 
+# ==============================================================================
+# Coupons & Offers Endpoints
+# ==============================================================================
+@order_router.get("/coupons", summary="Get Active Promo Deals & Coupons")
+def get_coupons(db: Session = Depends(get_db)):
+    """Retrieve all active discounts and promo deals."""
+    coupons = MenuService.get_active_coupons(db)
+    return jsonable_encoder([c.to_dict() for c in coupons])
+
+
+@order_router.post("/coupons/validate", summary="Validate Coupon & Calculate Discount")
+def validate_coupon(
+    data: CouponValidateSchema,
+    db: Session = Depends(get_db)
+):
+    """Validate promo code against cart subtotal and return savings in ₹."""
+    coupon, discount = MenuService.validate_coupon(db, data.code, data.cart_subtotal)
+    return jsonable_encoder({
+        "success": True,
+        "code": coupon.code,
+        "discount_amount": discount,
+        "description": coupon.description,
+        "message": f"🎉 Code '{coupon.code}' applied! You saved ₹{discount:.2f}."
+    })
+
+
+# ==============================================================================
+# Order Placement & Management
+# ==============================================================================
 @order_router.post("/order", status_code=status.HTTP_201_CREATED, summary="Place a New Pizza Order")
 @order_router.post("/order/", status_code=status.HTTP_201_CREATED, include_in_schema=False)
 def place_an_order(
@@ -54,18 +93,13 @@ def place_an_order(
     db: Session = Depends(get_db)
 ):
     """
-    ## Place a New Artisanal Pizza Order
-    - **pizza_name**: Name of artisanal pizza
-    - **pizza_size**: SMALL, MEDIUM, LARGE, or EXTRA-LARGE
-    - **quantity**: Minimum 1
-    - **customer_address**: Delivery address
-    - **customer_phone**: Delivery phone contact
-    - **notes**: Custom instructions or toppings
+    ## Place a New Artisanal Order in ₹ INR
+    Supports coupon discounts, SliceWallet deductions, delivery/takeaway choices, and special baking instructions.
     """
     created_order = OrderService.create_order(db, current_user, order)
     return jsonable_encoder({
         "success": True,
-        "message": "Order placed successfully! The stone oven is fired up.",
+        "message": "Order placed successfully! The wood-fire stone oven is baking your pizza.",
         "order": created_order.to_dict()
     })
 
@@ -74,13 +108,13 @@ def place_an_order(
 @order_router.get("/orders/", include_in_schema=False)
 def list_all_orders(
     status_filter: Optional[str] = Query(None, alias="status", description="Filter by status: PENDING, IN-TRANSIT, DELIVERED, CANCELLED"),
-    search: Optional[str] = Query(None, description="Search by pizza name, address, or phone"),
+    search: Optional[str] = Query(None, description="Search by customer phone, name, or pizza"),
     current_staff: User = Depends(get_current_staff),
     db: Session = Depends(get_db)
 ):
     """
     ## List All Customer Orders
-    Restricted to **Staff / Superusers**. Supports real-time filtering and search.
+    Restricted to **Staff / Kitchen Managers**. Regular customers are strictly denied access.
     """
     if not current_staff.is_staff:
         raise HTTPException(
@@ -91,14 +125,14 @@ def list_all_orders(
     return jsonable_encoder([order.to_dict() for order in orders])
 
 
-@order_router.get("/stats", summary="Get Orders Analytics & Metrics (Staff Only)")
+@order_router.get("/stats", summary="Get Orders Analytics & Kitchen KPIs (Staff Only)")
 @order_router.get("/stats/", include_in_schema=False)
 def get_order_stats(
     current_staff: User = Depends(get_current_staff),
     db: Session = Depends(get_db)
 ):
     """
-    ## Real-Time Kitchen KPIs & Financial Metrics
+    ## Real-Time Kitchen KPIs & Financial Revenue (in ₹)
     Aggregated order volume, revenue, and queue breakdown.
     """
     if not current_staff.is_staff:
@@ -206,10 +240,11 @@ def delete_an_order(
     """
     ## Delete or Cancel an Order
     Permitted for Staff on any order, or Customers while order is PENDING.
+    Automatically refunds to SliceWallet if paid via wallet!
     """
     deleted_info = OrderService.delete_order(db, id, current_user)
     return jsonable_encoder({
         "success": True,
-        "message": f"Order #{id} has been removed successfully.",
+        "message": f"Order #{id} has been cancelled successfully. Any wallet payments have been refunded.",
         "order": deleted_info
     })

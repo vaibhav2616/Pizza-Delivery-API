@@ -1,8 +1,9 @@
 import logging
 from app.core.database import engine, Base, SessionLocal
-from app.models.user import User
+from app.models.user import User, Address, WalletTransaction
 from app.models.order import Order
 from app.models.menu import PizzaMenu
+from app.models.coupon import Coupon
 from app.core.security import hash_password
 
 logging.basicConfig(level=logging.INFO)
@@ -13,96 +14,184 @@ INITIAL_PIZZAS = [
         "name": "Margherita Speciale",
         "description": "San Marzano plum tomato marinara, imported Fior di Latte mozzarella, fresh sweet basil, and extra virgin cold-pressed olive oil.",
         "category": "Classic",
-        "base_price": 13.99,
-        "badge": "Bestseller",
-        "image_url": "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=600&q=80",
-        "ingredients": "San Marzano Tomatoes, Buffalo Mozzarella, Fresh Basil, EVOO, Sea Salt"
+        "base_price": 299.0,
+        "badge": "Bestseller ⭐",
+        "image_url": "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=700&q=80",
+        "ingredients": "San Marzano Tomatoes, Buffalo Mozzarella, Fresh Basil, EVOO, Sea Salt",
+        "is_veg": True,
+        "rating": 4.9,
+        "preparation_time": 18
     },
     {
         "name": "Fiery Pepperoni Inferno",
         "description": "Artisan double pepperoni crispy cups, spicy chili hot-honey drizzle, crushed Calabrian peppers, and creamy mozzarella.",
         "category": "Meat",
-        "base_price": 17.99,
+        "base_price": 449.0,
         "badge": "Spicy 🔥",
-        "image_url": "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=600&q=80",
-        "ingredients": "Double Pepperoni, Hot Honey, Mozzarella, Chili Flakes, Marinara"
+        "image_url": "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=700&q=80",
+        "ingredients": "Double Pepperoni, Hot Honey, Mozzarella, Chili Flakes, Marinara",
+        "is_veg": False,
+        "rating": 4.9,
+        "preparation_time": 20
     },
     {
-        "name": "Truffle Wild Mushroom",
-        "description": "Slow-roasted cremini, chanterelle, and shiitake forest mushrooms, aromatic white garlic truffle emulsion, and aged Parmesan.",
+        "name": "Desi Paneer Makhani Burst",
+        "description": "Tandoor charcoal-roasted cottage cheese cubes, rich buttery tomato makhani sauce, crisp capsicum, charred red onion slivers, and aromatic kasuri methi.",
+        "category": "Vegetarian",
+        "base_price": 379.0,
+        "badge": "Desi Fusion 🇮🇳",
+        "image_url": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=700&q=80",
+        "ingredients": "Spiced Paneer, Makhani Gravy, Bell Peppers, Onions, Mozzarella, Kasuri Methi",
+        "is_veg": True,
+        "rating": 4.8,
+        "preparation_time": 22
+    },
+    {
+        "name": "Truffle Wild Forest Mushroom",
+        "description": "Slow-roasted cremini, chanterelle, and shiitake forest mushrooms, aromatic white garlic truffle emulsion, and aged 24-month Parmesan.",
         "category": "Specialty",
-        "base_price": 18.49,
-        "badge": "Chef Choice",
-        "image_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80",
-        "ingredients": "Truffle Cream, Wild Mushrooms, Fontina, Fresh Thyme, Garlic"
+        "base_price": 429.0,
+        "badge": "Chef Choice 👨‍🍳",
+        "image_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80",
+        "ingredients": "Truffle Cream, Wild Mushrooms, Fontina, Fresh Thyme, Garlic",
+        "is_veg": True,
+        "rating": 4.9,
+        "preparation_time": 25
     },
     {
         "name": "Smoky BBQ Pulled Chicken",
-        "description": "Hickory wood-smoked pulled chicken breast, charred red onion slivers, tangy house barbecue sauce glaze, and sharp cheddar blend.",
+        "description": "Hickory wood-smoked pulled chicken breast, charred red onion slivers, tangy house barbecue glaze, and sharp cheddar blend.",
         "category": "Meat",
-        "base_price": 16.99,
+        "base_price": 419.0,
         "badge": "Popular",
-        "image_url": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80",
-        "ingredients": "BBQ Chicken, Red Onions, Cheddar, Cilantro, Smoked Gouda"
+        "image_url": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=700&q=80",
+        "ingredients": "BBQ Chicken, Red Onions, Cheddar, Cilantro, Smoked Gouda",
+        "is_veg": False,
+        "rating": 4.7,
+        "preparation_time": 20
     },
     {
         "name": "Quattro Formaggi Supreme",
-        "description": "Four-cheese harmony with aged Gorgonzola dolce, creamy ricotta, fresh mozzarella, and 24-month Parmigiano-Reggiano.",
+        "description": "Four-cheese Italian harmony with aged Gorgonzola dolce, creamy whole-milk ricotta, fresh mozzarella, and 24-month Parmigiano-Reggiano.",
         "category": "Classic",
-        "base_price": 15.99,
-        "badge": "Vegetarian 🌿",
-        "image_url": "https://images.unsplash.com/photo-1573821663912-569905455b1c?auto=format&fit=crop&w=600&q=80",
-        "ingredients": "Gorgonzola, Ricotta, Mozzarella, Parmigiano-Reggiano, Cracked Black Pepper"
+        "base_price": 399.0,
+        "badge": "Cheese Burst 🧀",
+        "image_url": "https://images.unsplash.com/photo-1573821663912-569905455b1c?auto=format&fit=crop&w=700&q=80",
+        "ingredients": "Gorgonzola, Ricotta, Mozzarella, Parmigiano-Reggiano, Cracked Black Pepper",
+        "is_veg": True,
+        "rating": 4.8,
+        "preparation_time": 18
     },
     {
         "name": "Mediterranean Garden Harvest",
         "description": "Wood-fire roasted sweet bell peppers, marinated artichoke hearts, Kalamata olives, crumbled feta cheese, and peppery wild baby arugula.",
         "category": "Vegetarian",
-        "base_price": 14.99,
-        "badge": "Healthy Choice",
-        "image_url": "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=600&q=80",
-        "ingredients": "Artichokes, Kalamata Olives, Feta Cheese, Bell Peppers, Arugula"
+        "base_price": 349.0,
+        "badge": "Healthy Choice 🌿",
+        "image_url": "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=700&q=80",
+        "ingredients": "Artichokes, Kalamata Olives, Feta Cheese, Bell Peppers, Arugula",
+        "is_veg": True,
+        "rating": 4.6,
+        "preparation_time": 19
     },
     {
         "name": "The Butcher's Carnivore Feast",
         "description": "Savory Italian fennel sausage, spiced ground beef meatballs, crispy smoked bacon, and pepperoni loaded on rich herb tomato sauce.",
         "category": "Meat",
-        "base_price": 19.99,
-        "badge": "Meat Lovers",
-        "image_url": "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=600&q=80",
-        "ingredients": "Italian Sausage, Smoked Bacon, Meatballs, Pepperoni, Marinara"
+        "base_price": 549.0,
+        "badge": "Meat Lovers 🥩",
+        "image_url": "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=700&q=80",
+        "ingredients": "Italian Sausage, Smoked Bacon, Meatballs, Pepperoni, Marinara",
+        "is_veg": False,
+        "rating": 4.9,
+        "preparation_time": 24
     },
     {
-        "name": "Spicy Peri-Peri Paneer",
-        "description": "Flame-seared cottage cheese cubes, roasted sweet corn, diced red onions, and hot African bird's eye chili garlic sauce.",
-        "category": "Vegetarian",
-        "base_price": 15.49,
-        "badge": "Spicy 🔥",
-        "image_url": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=600&q=80",
-        "ingredients": "Paneer, Peri-Peri Sauce, Sweet Corn, Bell Peppers, Mozzarella"
+        "name": "Artisanal Cheesy Garlic Breadsticks",
+        "description": "Freshly baked sourdough breadsticks brushed with roasted garlic butter, oregano, and loaded with molten stretch mozzarella.",
+        "category": "Sides & Beverages",
+        "base_price": 189.0,
+        "badge": "Must Try 🔥",
+        "image_url": "https://images.unsplash.com/photo-1619895092538-128341789043?auto=format&fit=crop&w=700&q=80",
+        "ingredients": "Sourdough, Herb Garlic Butter, Mozzarella, Oregano, Cheesy Dip",
+        "is_veg": True,
+        "rating": 4.9,
+        "preparation_time": 15
+    },
+    {
+        "name": "Molten Choco Lava Crunch Cake",
+        "description": "Warm, decadent individual chocolate cake with an irresistible bubbling dark Belgian chocolate molten center.",
+        "category": "Sides & Beverages",
+        "base_price": 149.0,
+        "badge": "Dessert 🍫",
+        "image_url": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=700&q=80",
+        "ingredients": "Belgian Dark Chocolate, Dutch Cocoa, Butter, Vanilla Glaze",
+        "is_veg": True,
+        "rating": 5.0,
+        "preparation_time": 10
+    }
+]
+
+INITIAL_COUPONS = [
+    {
+        "code": "FIRSTBITE",
+        "description": "50% OFF up to ₹150 for your first wood-fired order!",
+        "discount_type": "PERCENTAGE",
+        "discount_value": 50.0,
+        "min_order_amount": 299.0,
+        "max_discount": 150.0,
+        "is_active": True
+    },
+    {
+        "code": "SLICE100",
+        "description": "Flat ₹100 instant discount on orders above ₹499",
+        "discount_type": "FLAT",
+        "discount_value": 100.0,
+        "min_order_amount": 499.0,
+        "max_discount": 100.0,
+        "is_active": True
+    },
+    {
+        "code": "CHEESELOVER",
+        "description": "Flat ₹75 OFF on any cheese pizza feast above ₹399",
+        "discount_type": "FLAT",
+        "discount_value": 75.0,
+        "min_order_amount": 399.0,
+        "max_discount": 75.0,
+        "is_active": True
+    },
+    {
+        "code": "FREEDEL",
+        "description": "Free Courier Delivery on any order above ₹249",
+        "discount_type": "FLAT",
+        "discount_value": 49.0,
+        "min_order_amount": 249.0,
+        "max_discount": 49.0,
+        "is_active": True
     }
 ]
 
 def init_db():
-    logger.info("Verifying database schema...")
+    logger.info("Initializing database schema with Rupee ₹ currency, SliceWallet, and Address Book...")
     Base.metadata.create_all(bind=engine)
     
     db = SessionLocal()
     try:
-        # Seed Admin / Staff Account
+        # Seed Admin / Kitchen Staff Account
         admin = db.query(User).filter(User.username == "admin").first()
         if not admin:
             admin = User(
                 username="admin",
                 email="admin@slicecraft.com",
                 password=hash_password("Admin@123"),
-                phone="+1 (555) 901-2345",
-                default_address="Kitchen Command Center, 1 Main St",
+                phone="+91 99001 23456",
+                default_address="Kitchen Command Center, 100 Feet Rd, Indiranagar, Bengaluru",
+                wallet_balance=10000.0,
                 is_staff=True,
                 is_active=True
             )
             db.add(admin)
-            logger.info("Created Default Superuser/Staff: admin / Admin@123")
+            logger.info("Created Default Superuser/Staff: admin / Admin@123 (₹10,000 Wallet)")
 
         # Seed Customer Account
         customer = db.query(User).filter(User.username == "johndoe").first()
@@ -111,13 +200,61 @@ def init_db():
                 username="johndoe",
                 email="johndoe@gmail.com",
                 password=hash_password("Password123!"),
-                phone="+1 (555) 019-2834",
-                default_address="742 Evergreen Terrace, Springfield",
+                phone="+91 98765 43210",
+                default_address="Flat 402, Sunshine Apartments, 12th Main, Indiranagar, Bengaluru - 560038",
+                wallet_balance=500.0, # ₹500 welcome credit
                 is_staff=False,
                 is_active=True
             )
             db.add(customer)
-            logger.info("Created Default Customer: johndoe / Password123!")
+            db.commit()
+            db.refresh(customer)
+
+            # Seed saved addresses for johndoe
+            addr1 = Address(
+                user_id=customer.id,
+                label="Home",
+                receiver_name="John Doe",
+                receiver_phone="+91 98765 43210",
+                street_address="Flat 402, Sunshine Apartments, 12th Main, Indiranagar",
+                landmark="Near Toit Brewpub",
+                city="Bengaluru",
+                pincode="560038",
+                is_default=True
+            )
+            addr2 = Address(
+                user_id=customer.id,
+                label="Work",
+                receiver_name="John Doe (Tech Park)",
+                receiver_phone="+91 98765 43210",
+                street_address="Floor 4, Tower B, Embassy Golf Links Business Park, Domlur",
+                landmark="Opposite Hilton",
+                city="Bengaluru",
+                pincode="560071",
+                is_default=False
+            )
+            db.add_all([addr1, addr2])
+
+            # Seed welcome wallet transaction
+            tx = WalletTransaction(
+                user_id=customer.id,
+                amount=500.0,
+                transaction_type="WELCOME_BONUS",
+                description="Welcome to SliceCraft! ₹500 credited to your SliceWallet.",
+                balance_after=500.0
+            )
+            db.add(tx)
+            logger.info("Created Default Customer: johndoe / Password123! with 2 Addresses & ₹500 Wallet")
+
+        db.commit()
+
+        # Seed Coupons
+        for coupon_data in INITIAL_COUPONS:
+            existing = db.query(Coupon).filter(Coupon.code == coupon_data["code"]).first()
+            if not existing:
+                new_coupon = Coupon(**coupon_data)
+                db.add(new_coupon)
+                logger.info(f"Seeded Coupon: {coupon_data['code']}")
 
         db.commit()
 
@@ -127,11 +264,18 @@ def init_db():
             if not existing_pizza:
                 new_pizza = PizzaMenu(**pizza_data)
                 db.add(new_pizza)
-                logger.info(f"Seeded Pizza Menu item: {pizza_data['name']}")
+                logger.info(f"Seeded Food item: {pizza_data['name']} (₹{pizza_data['base_price']})")
+            else:
+                # Update price and metadata if existing
+                existing_pizza.base_price = pizza_data["base_price"]
+                existing_pizza.is_veg = pizza_data["is_veg"]
+                existing_pizza.rating = pizza_data["rating"]
+                existing_pizza.preparation_time = pizza_data["preparation_time"]
+                existing_pizza.badge = pizza_data["badge"]
 
         db.commit()
 
-        # Seed Initial Sample Orders for live dashboard demonstration
+        # Seed Initial Sample Orders for live tracker demonstration
         sample_orders_count = db.query(Order).count()
         if sample_orders_count == 0 and customer:
             orders = [
@@ -139,11 +283,21 @@ def init_db():
                     pizza_name="Fiery Pepperoni Inferno",
                     pizza_size="LARGE",
                     quantity=1,
-                    unit_price=22.49,
-                    total_price=22.49,
+                    unit_price=606.15,
+                    subtotal=606.15,
+                    coupon_code="FIRSTBITE",
+                    discount_amount=150.0,
+                    delivery_fee=0.0,
+                    tax_amount=22.81,
+                    total_price=478.96,
                     order_status="IN-TRANSIT",
-                    customer_address="742 Evergreen Terrace, Springfield",
-                    customer_phone="+1 (555) 019-2834",
+                    order_type="DELIVERY",
+                    customer_address="[Home] Flat 402, Sunshine Apartments, 12th Main, Indiranagar, Bengaluru - 560038",
+                    customer_phone="+91 98765 43210",
+                    payment_method="WALLET",
+                    payment_status="PAID",
+                    delivery_partner_name="Ramesh Kumar (Speedy Courier)",
+                    delivery_partner_phone="+91 98765 43210",
                     notes="Ring doorbell, hot honey on side",
                     user_id=customer.id
                 ),
@@ -151,18 +305,28 @@ def init_db():
                     pizza_name="Margherita Speciale",
                     pizza_size="MEDIUM",
                     quantity=2,
-                    unit_price=13.99,
-                    total_price=27.98,
+                    unit_price=299.0,
+                    subtotal=598.0,
+                    coupon_code="SLICE100",
+                    discount_amount=100.0,
+                    delivery_fee=0.0,
+                    tax_amount=24.90,
+                    total_price=522.90,
                     order_status="DELIVERED",
-                    customer_address="742 Evergreen Terrace, Springfield",
-                    customer_phone="+1 (555) 019-2834",
+                    order_type="DELIVERY",
+                    customer_address="[Home] Flat 402, Sunshine Apartments, 12th Main, Indiranagar, Bengaluru - 560038",
+                    customer_phone="+91 98765 43210",
+                    payment_method="UPI",
+                    payment_status="PAID",
+                    delivery_partner_name="Ramesh Kumar (Speedy Courier)",
+                    delivery_partner_phone="+91 98765 43210",
                     notes="Extra crispy crust, well done",
                     user_id=customer.id
                 )
             ]
             db.add_all(orders)
             db.commit()
-            logger.info("Seeded sample orders for live dashboard demonstration.")
+            logger.info("Seeded sample Indian Rupee ₹ orders for live dashboard demonstration.")
 
         logger.info("Database initialization and verification completed successfully!")
     except Exception as e:
