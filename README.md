@@ -225,9 +225,3 @@ Ran 12 tests in 0.68s
 
 OK
 ```
-
----
-
-## 📖 Architecture Decision Record (ADR)
-
-For an in-depth interview-style technical breakdown detailing all architectural decisions, design patterns, framework trade-offs, and scaling strategies, see **[`decisions.md`](./decisions.md)**.
